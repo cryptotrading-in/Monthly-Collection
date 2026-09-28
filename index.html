@@ -247,7 +247,7 @@ function editCollection(id){
   const e=employees.find(x=>x.id===id),r=recordFor(id);if(!e)return;
   const contribution=prompt("Contribution amount:",r.contribution??contributionRate(e));if(contribution===null)return;
   const leaveDays=e.outLiving?0:prompt("Leave days:",r.leaveDays||0);if(leaveDays===null)return;
-  const daysInMonth=new Date(...currentMonth.split("-").map(Number).reverse(),0).getDate();
+  const parts=currentMonth.split("-").map(Number);const daysInMonth=new Date(parts[0],parts[1],0).getDate();
   const leaveAmount=e.outLiving?0:(7000/daysInMonth)*Math.max(0,+leaveDays||0);
   const received=prompt("Received money:",r.received);if(received===null)return;
   collections[id]={contribution:Math.max(0,+contribution||0),leaveDays:Math.max(0,+leaveDays||0),leave:leaveAmount,received:Math.max(0,+received||0),messBase:livingMessBase(e)};
