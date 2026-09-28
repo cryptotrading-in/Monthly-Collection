@@ -149,7 +149,7 @@ function renderHistory(){const box=document.getElementById("historyList");box.in
   for(const x of imported){
     const id="imp-"+x[0], oldR=oldAug[id]||{};
     const rate=window.RANK_RATES?.[x[1]]||[0,null];
-    const contribution=(window.LIVING_STATUS?.[x[0]]==="in")?rate[0]:0;
+    const contribution=window.CONTRIBUTIONS?.[x[0]]??0;
     const messBase=(window.LIVING_STATUS?.[x[0]]==="in")?7000:0;
     corrected[id]={contribution,leaveDays:x[3]?(+oldR.leaveDays||0):0,leave:x[3]?(+oldR.leave||0):0,received:+oldR.received||0,messBase};
   }
