@@ -126,5 +126,138 @@ function renderHistory(){const box=document.getElementById("historyList");box.in
   updateHome();
   updateHomeCollection();
 })();
+</script><style>
+#outLivingWrap{display:flex;align-items:center;gap:9px;margin-top:12px;font-size:13px;font-weight:650}
+#outLiving{width:18px;height:18px}
+.out-badge{display:inline-block;font-size:11px;font-weight:700;color:#9a6700;background:#fff7cc;border:1px solid #f2d675;border-radius:99px;padding:5px 8px;margin-top:6px}
+.in-badge{display:inline-block;font-size:11px;font-weight:700;color:#16834b;background:#ecfdf3;border:1px solid #b7ebcc;border-radius:99px;padding:5px 8px;margin-top:6px}
+.danger{padding:7px 9px;border:1px solid #f0caca;border-radius:9px;background:#fff5f5;color:#c62828}
+</style>
+<script>
+(function fixMonthlyCollectionV3(){
+  const VERSION="mc_living_logic_v3";
+  const imported=Array.isArray(window.IMPORTED_EMPLOYEES)?window.IMPORTED_EMPLOYEES:[];
+  const old=JSON.parse(localStorage.getItem("mc_employees")||"[]");
+  const importedForces=new Set(imported.map(x=>String(x[0]).toUpperCase()));
+  const importedIds=new Set();
+  const fixed=imported.map(x=>{
+    const id="imp-"+x[0], oldE=old.find(e=>String(e.forceNo).toUpperCase()===String(x[0]).toUpperCase());
+    importedIds.add(id);
+    return {id,forceNo:x[0],rank:x[1],name:x[2],outLiving:!x[3],active:true};
+  });
+  const others=old.filter(e=>!importedForces.has(String(e.forceNo||"").toUpperCase()));
+  employees=[...fixed,...others.map(e=>({...e,outLiving:!!e.outLiving,active:true}))];
+  localStorage.setItem("mc_employees",JSON.stringify(employees));
+  const oldAug=JSON.parse(localStorage.getItem("mc_collection_2026-08")||"{}");
+  const corrected={};
+  for(const x of imported){
+    const id="imp-"+x[0], oldR=oldAug[id]||{};
+    const rate=window.RANK_RATES?.[x[1]]||[0,null];
+    const contribution=(!x[3]&&rate[1]!=null)?rate[1]:rate[0];
+    const messBase=x[3]?7000:0;
+    corrected[id]={contribution,leaveDays:x[3]?(+oldR.leaveDays||0):0,leave:x[3]?(+oldR.leave||0):0,received:+oldR.received||0,messBase};
+  }
+  for(const [id,r] of Object.entries(oldAug)) if(!importedIds.has(id)) corrected[id]=r;
+  localStorage.setItem("mc_collection_2026-08",JSON.stringify(corrected));
+  localStorage.setItem(VERSION,"1");
+})();
+function ensureOutLivingControl(){
+  const form=document.getElementById("employeeForm");
+  if(!form||document.getElementById("outLivingWrap")) return;
+  const saveBtn=form.querySelector(".save");
+  const wrap=document.createElement("label");
+  wrap.id="outLivingWrap";
+  wrap.innerHTML='<input id="outLiving" type="checkbox"> Out Living';
+  saveBtn.before(wrap);
+}
+function livingMessBase(e){return e&&e.outLiving?0:7000}
+function contributionRate(e){
+  const r=window.RANK_RATES?.[e.rank]||[0,null];
+  return e.outLiving&&r[1]!=null?r[1]:r[0];
+}
+function renderEmployees(){
+  ensureOutLivingControl();
+  const q=(document.getElementById("search")?.value||"").toLowerCase();
+  const list=employees.filter(e=>(e.forceNo+" "+e.name).toLowerCase().includes(q));
+  const ac=document.getElementById("activeCount"); if(ac)ac.textContent=employees.length+" Employees";
+  const box=document.getElementById("employeeList");
+  box.innerHTML=list.length?list.map(e=>`
+ <div class="employee">
+  <div><strong>${e.name}</strong><small>${e.rank} • Force No: ${e.forceNo}</small><span class="${e.outLiving?"out-badge":"in-badge"}">${e.outLiving?"Out Living":"In Living"}</span></div>
+  <div style="display:flex;gap:6px;align-items:flex-start">
+   <button onclick="editEmployee('${e.id}')" style="padding:7px 9px;border:1px solid #dfe3ea;border-radius:9px;background:#fff">Edit</button>
+   <button onclick="deleteEmployee('${e.id}')" class="danger">Delete</button>
+  </div>
+ </div>`).join(""):'<div class="card"><div class="month">No employees found.</div></div>';
+}
+function toggleForm(){
+  ensureOutLivingControl(); editId=null;
+  document.querySelector("#employeeForm h2").textContent="Add Employee";
+  document.querySelector(".save").textContent="Save Employee";
+  document.getElementById("forceNo").value="";
+  document.getElementById("rank").value="";
+  document.getElementById("name").value="";
+  document.getElementById("outLiving").checked=false;
+  document.getElementById("employeeForm").classList.toggle("show");
+}
+function addEmployee(){
+  ensureOutLivingControl();
+  const force=document.getElementById("forceNo").value.trim(),rank=document.getElementById("rank").value,name=document.getElementById("name").value.trim(),outLiving=document.getElementById("outLiving").checked;
+  if(!force||!rank||!name){alert("Please fill Force No, Rank and Name.");return}
+  if(employees.some(e=>e.forceNo.toLowerCase()===force.toLowerCase()&&e.id!==editId)){alert("This Force No already exists.");return}
+  if(editId){const e=employees.find(x=>x.id===editId);Object.assign(e,{forceNo:force,rank,name,outLiving,active:true})}
+  else employees.push({id:Date.now().toString(),forceNo:force,rank,name,outLiving,active:true});
+  localStorage.setItem("mc_employees",JSON.stringify(employees));
+  editId=null;document.getElementById("employeeForm").classList.remove("show");renderEmployees();updateHome();renderCollection();updateHomeCollection();
+}
+function editEmployee(id){
+  ensureOutLivingControl(); const e=employees.find(x=>x.id===id);if(!e)return;
+  editId=id;document.querySelector("#employeeForm h2").textContent="Edit Employee";document.querySelector(".save").textContent="Update Employee";
+  document.getElementById("forceNo").value=e.forceNo;document.getElementById("rank").value=e.rank;document.getElementById("name").value=e.name;document.getElementById("outLiving").checked=!!e.outLiving;
+  document.getElementById("employeeForm").classList.add("show");window.scrollTo({top:0,behavior:"smooth"});
+}
+function deleteEmployee(id){
+  const e=employees.find(x=>x.id===id);if(!e)return;
+  if(!confirm("Delete "+e.name+"?"))return;
+  employees=employees.filter(x=>x.id!==id);
+  localStorage.setItem("mc_employees",JSON.stringify(employees));
+  const data=JSON.parse(localStorage.getItem(collectionKey)||"{}");delete data[id];localStorage.setItem(collectionKey,JSON.stringify(data));
+  renderEmployees();updateHome();renderCollection();updateHomeCollection();
+}
+function updateHome(){
+  const total=employees.length;
+  document.getElementById("totalEmployees").textContent=total;
+  updateHomeCollection();
+}
+function recordFor(id){return collections[id]||{contribution:0,leave:0,leaveDays:0,received:0,messBase:livingMessBase(employees.find(e=>e.id===id))}}
+function renderCollection(){
+  const q=(document.getElementById("collectionSearch")?.value||"").toLowerCase();
+  const active=employees.filter(e=>(e.name+" "+e.forceNo).toLowerCase().includes(q));
+  const box=document.getElementById("collectionList");box.innerHTML="";
+  active.forEach(e=>{
+    const r=recordFor(e.id),base=livingMessBase(e),leave=e.outLiving?0:Math.min(base,+r.leave||0),mess=Math.max(0,base-leave);
+    const contribution=(r.contribution===undefined?contributionRate(e):+r.contribution||0),total=contribution+mess,rec=+r.received||0,rem=Math.max(0,total-rec);
+    const status=rec>=total&&total>0?"Received":rec>0?"Partial":"Pending";
+    const d=document.createElement("div");d.className="card";d.style.marginBottom="10px";
+    d.innerHTML="<div style='display:flex;justify-content:space-between'><div><strong>"+e.name+"</strong><div class='month'>"+e.rank+" • "+e.forceNo+"</div><span class='"+(e.outLiving?"out-badge":"in-badge")+"'>"+(e.outLiving?"Out Living":"In Living")+"</span></div><span class='badge'>"+status+"</span></div><div style='display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px;font-size:13px'><div>Contribution<br><strong>Rs "+contribution.toLocaleString()+"</strong></div><div>Leave<br><strong>"+(+r.leaveDays||0)+" days / Rs "+leave.toFixed(2)+"</strong></div><div>Mess<br><strong>Rs "+mess.toLocaleString()+"</strong></div><div>Grand Total<br><strong>Rs "+total.toLocaleString()+"</strong></div><div>Remaining<br><strong>Rs "+rem.toLocaleString()+"</strong></div></div>";
+    const b=document.createElement("button");b.textContent="Enter / Update Collection";b.style.cssText="width:100%;margin-top:13px;padding:11px;border:1px solid #dfe3ea;border-radius:10px;background:#fff";b.onclick=()=>editCollection(e.id);d.appendChild(b);box.appendChild(d);
+  });
+}
+function editCollection(id){
+  const e=employees.find(x=>x.id===id),r=recordFor(id);if(!e)return;
+  const contribution=prompt("Contribution amount:",r.contribution??contributionRate(e));if(contribution===null)return;
+  const leaveDays=e.outLiving?0:prompt("Leave days:",r.leaveDays||0);if(leaveDays===null)return;
+  const daysInMonth=new Date(...currentMonth.split("-").map(Number).reverse(),0).getDate();
+  const leaveAmount=e.outLiving?0:(7000/daysInMonth)*Math.max(0,+leaveDays||0);
+  const received=prompt("Received money:",r.received);if(received===null)return;
+  collections[id]={contribution:Math.max(0,+contribution||0),leaveDays:Math.max(0,+leaveDays||0),leave:leaveAmount,received:Math.max(0,+received||0),messBase:livingMessBase(e)};
+  localStorage.setItem(collectionKey,JSON.stringify(collections));renderCollection();updateHomeCollection();
+}
+function updateHomeCollection(){
+  let received=0,pending=0;
+  employees.forEach(e=>{const r=recordFor(e.id),mess=Math.max(0,livingMessBase(e)-(+r.leave||0)),total=(r.contribution===undefined?contributionRate(e):+r.contribution||0)+mess,rec=+r.received||0;if(total>0&&rec>=total)received++;else pending++});
+  document.getElementById("receivedCount").textContent=received;document.getElementById("pendingCount").textContent=pending;
+}
+document.addEventListener("DOMContentLoaded",()=>{ensureOutLivingControl();renderEmployees();updateHome();if(typeof renderCollection==="function")renderCollection()});
 </script></body>
 </html>
