@@ -31,5 +31,63 @@ nav button{background:transparent;color:#667085;padding:8px 16px;font-size:12px;
 <button class="action">👤 Add Employee</button>
 <button class="action">🧮 Leave Calculator</button>
 </section><section id="employees" class="section"><h2>Employees</h2><div id="activeCount" class="month">0 Active</div><input id="search" class="search" placeholder="🔍 Search Force No or Name" oninput="renderEmployees()"><div id="employeeList"></div><button class="fab" onclick="toggleForm()">+</button><div id="employeeForm" class="form"><h2>Add Employee</h2><label>Force No</label><input id="forceNo"><label>Rank</label><select id="rank"><option value="">Select rank</option><option>DD</option><option>AD</option><option>INSP</option><option>SI</option><option>ASI</option><option>HC</option><option>PC</option></select><label>Name</label><input id="name"><button class="save" onclick="addEmployee()">Save Employee</button></div></section><section id="collection" class="section"><h2>Monthly Collection</h2><div class="card">September 2026<br><span class="month">Collection module next.</span></div></section></main><nav><button id="nav-home" class="active" onclick="show('home')">⌂<br>Home</button><button id="nav-employees" onclick="show('employees')">♙<br>Employees</button><button id="nav-collection" onclick="show('collection')">▣<br>Collection</button><button>☰<br>Menu</button></nav>
-</body>
+<script>
+let employees=JSON.parse(localStorage.getItem('mc_employees')||'[]');
+let editId=null;
+
+function save(){localStorage.setItem('mc_employees',JSON.stringify(employees));renderEmployees();updateHome();}
+function show(id){
+ document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+ if(id==='home'){document.querySelector('.stats').style.display='grid';document.querySelector('.quick').style.display='block';}
+ else{document.querySelector('.stats').style.display='none';document.querySelector('.quick').style.display='none';document.getElementById(id).classList.add('active');}
+ document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+ const n=document.getElementById('nav-'+id);if(n)n.classList.add('active');
+ if(id==='employees')renderEmployees();
+}
+function toggleForm(){
+ editId=null;document.querySelector('#employeeForm h2').textContent='Add Employee';
+ document.querySelector('.save').textContent='Save Employee';
+ document.getElementById('employeeForm').classList.toggle('show');
+}
+function renderEmployees(){
+ const q=(document.getElementById('search')?.value||'').toLowerCase();
+ const list=employees.filter(e=>(e.forceNo+' '+e.name).toLowerCase().includes(q));
+ document.getElementById('activeCount').textContent=employees.filter(e=>e.active).length+' Active';
+ document.getElementById('employeeList').innerHTML=list.length?list.map(e=>`
+ <div class="employee">
+  <div><strong>${e.name}</strong><small>${e.rank} • Force No: ${e.forceNo}</small><small>${e.active?'Active':'Inactive'}</small></div>
+  <div style="display:flex;gap:6px;align-items:flex-start">
+   <button onclick="editEmployee('${e.id}')" style="padding:7px 9px;border:1px solid #dfe3ea;border-radius:9px;background:#fff">Edit</button>
+   <button onclick="toggleEmployee('${e.id}')" style="padding:7px 9px;border:1px solid #dfe3ea;border-radius:9px;background:#fff">${e.active?'Deactivate':'Activate'}</button>
+  </div>
+ </div>`).join(''):'<div class="card"><div class="month">No employees found.</div></div>';
+}
+function addEmployee(){
+ const force=document.getElementById('forceNo').value.trim(),rank=document.getElementById('rank').value,name=document.getElementById('name').value.trim();
+ if(!force||!rank||!name){alert('Please fill Force No, Rank and Name.');return;}
+ if(employees.some(e=>e.forceNo.toLowerCase()===force.toLowerCase()&&e.id!==editId)){alert('This Force No already exists.');return;}
+ if(editId){
+  const e=employees.find(x=>x.id===editId);Object.assign(e,{forceNo,rank,name});
+ }else employees.push({id:Date.now().toString(),forceNo,rank,name,active:true});
+ save();document.getElementById('employeeForm').classList.remove('show');clearForm();
+}
+function editEmployee(id){
+ const e=employees.find(x=>x.id===id);if(!e)return;editId=id;
+ document.querySelector('#employeeForm h2').textContent='Edit Employee';document.querySelector('.save').textContent='Update Employee';
+ document.getElementById('forceNo').value=e.forceNo;document.getElementById('rank').value=e.rank;document.getElementById('name').value=e.name;
+ document.getElementById('employeeForm').classList.add('show');window.scrollTo({top:0,behavior:'smooth'});
+}
+function clearForm(){document.getElementById('forceNo').value='';document.getElementById('rank').value='';document.getElementById('name').value='';editId=null;}
+function toggleEmployee(id){
+ const e=employees.find(x=>x.id===id);if(!e)return;
+ e.active=!e.active;save();
+}
+function updateHome(){
+ const active=employees.filter(e=>e.active).length;
+ document.getElementById('totalEmployees').textContent=active;
+ document.getElementById('pendingCount').textContent=active;
+ document.getElementById('receivedCount').textContent=0;
+}
+document.addEventListener('DOMContentLoaded',()=>{updateHome();});
+</script></body>
 </html>
