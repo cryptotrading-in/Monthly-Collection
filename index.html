@@ -16,7 +16,7 @@ h1{font-size:22px;margin:0}.month{color:#667085;font-size:13px;margin-top:4px}
 nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e7eaf0;display:flex;justify-content:center;padding:9px 8px calc(9px + env(safe-area-inset-bottom));z-index:5}
 nav button{background:transparent;color:#667085;padding:8px 16px;font-size:12px;font-weight:600}nav button.active{color:#2563eb}
 @media(min-width:700px){.app{padding-top:28px}.stats{grid-template-columns:repeat(3,1fr)}.stat:last-child{grid-column:auto}}
-</style>
+.section{display:none}.section.active{display:block}.search{width:100%;padding:13px;border:1px solid #dfe3ea;border-radius:12px;background:#fff;margin:12px 0}.employee{display:flex;justify-content:space-between;background:#fff;border:1px solid #e7eaf0;border-radius:14px;padding:15px;margin-bottom:10px}.employee small{display:block;color:#667085;margin-top:4px}.badge{font-size:11px;font-weight:700;color:#16834b;background:#ecfdf3;border-radius:99px;padding:6px 9px}.fab{position:fixed;right:18px;bottom:82px;width:52px;height:52px;border-radius:50%;background:#2563eb;color:#fff;font-size:25px}.form{display:none;background:#fff;border:1px solid #e7eaf0;border-radius:16px;padding:16px;margin-top:12px}.form.show{display:block}.form label{display:block;font-size:12px;margin:10px 0 5px}.form input,.form select{width:100%;padding:12px;border:1px solid #dfe3ea;border-radius:11px}.save{width:100%;margin-top:15px;padding:13px;border-radius:11px;background:#2563eb;color:#fff;font-weight:700}</style>
 </head>
 <body>
 <main class="app">
@@ -30,8 +30,6 @@ nav button{background:transparent;color:#667085;padding:8px 16px;font-size:12px;
 <button class="action">💰 Monthly Collection</button>
 <button class="action">👤 Add Employee</button>
 <button class="action">🧮 Leave Calculator</button>
-</section>
-</main>
-<nav><button class="active">⌂<br>Home</button><button>♙<br>Employees</button><button>▣<br>Collection</button><button>☰<br>Menu</button></nav>
+</section><section id="employees" class="section"><h2>Employees</h2><div id="activeCount" class="month">0 Active</div><input id="search" class="search" placeholder="🔍 Search Force No or Name" oninput="renderEmployees()"><div id="employeeList"></div><button class="fab" onclick="toggleForm()">+</button><div id="employeeForm" class="form"><h2>Add Employee</h2><label>Force No</label><input id="forceNo"><label>Rank</label><select id="rank"><option value="">Select rank</option><option>DD</option><option>AD</option><option>INSP</option><option>SI</option><option>ASI</option><option>HC</option><option>PC</option></select><label>Name</label><input id="name"><button class="save" onclick="addEmployee()">Save Employee</button></div></section><section id="collection" class="section"><h2>Monthly Collection</h2><div class="card">September 2026<br><span class="month">Collection module next.</span></div></section></main><nav><button id="nav-home" class="active" onclick="show('home')">⌂<br>Home</button><button id="nav-employees" onclick="show('employees')">♙<br>Employees</button><button id="nav-collection" onclick="show('collection')">▣<br>Collection</button><button>☰<br>Menu</button></nav>
 </body>
 </html>
