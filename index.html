@@ -140,11 +140,7 @@ function renderHistory(){const box=document.getElementById("historyList");box.in
   const old=JSON.parse(localStorage.getItem("mc_employees")||"[]");
   const importedForces=new Set(imported.map(x=>String(x[0]).toUpperCase()));
   const importedIds=new Set();
-  const fixed=imported.map(x=>{
-    const id="imp-"+x[0], oldE=old.find(e=>String(e.forceNo).toUpperCase()===String(x[0]).toUpperCase());
-    importedIds.add(id);
-    return {id,forceNo:x[0],rank:x[1],name:x[2],outLiving:!x[3],active:true};
-  });
+  const fixed=imported.map(x=>{const id="imp-"+x[0], status=window.LIVING_STATUS?.[x[0]]||"in"; return {id,forceNo:x[0],rank:x[1],name:x[2],outLiving:status==="out",active:true};});
   const others=old.filter(e=>!importedForces.has(String(e.forceNo||"").toUpperCase()));
   employees=[...fixed,...others.map(e=>({...e,outLiving:!!e.outLiving,active:true}))];
   localStorage.setItem("mc_employees",JSON.stringify(employees));
@@ -153,8 +149,8 @@ function renderHistory(){const box=document.getElementById("historyList");box.in
   for(const x of imported){
     const id="imp-"+x[0], oldR=oldAug[id]||{};
     const rate=window.RANK_RATES?.[x[1]]||[0,null];
-    const contribution=(!x[3]&&rate[1]!=null)?rate[1]:rate[0];
-    const messBase=x[3]?7000:0;
+    const contribution=(window.LIVING_STATUS?.[x[0]]==="in")?rate[0]:0;
+    const messBase=(window.LIVING_STATUS?.[x[0]]==="in")?7000:0;
     corrected[id]={contribution,leaveDays:x[3]?(+oldR.leaveDays||0):0,leave:x[3]?(+oldR.leave||0):0,received:+oldR.received||0,messBase};
   }
   for(const [id,r] of Object.entries(oldAug)) if(!importedIds.has(id)) corrected[id]=r;
