@@ -135,7 +135,7 @@ function renderHistory(){const box=document.getElementById("historyList");box.in
 </style>
 <script>
 (function fixMonthlyCollectionV3(){
-  const VERSION="mc_living_logic_v3";
+  const VERSION="mc_living_logic_v4";
   const imported=Array.isArray(window.IMPORTED_EMPLOYEES)?window.IMPORTED_EMPLOYEES:[];
   const old=JSON.parse(localStorage.getItem("mc_employees")||"[]");
   const importedForces=new Set(imported.map(x=>String(x[0]).toUpperCase()));
@@ -155,6 +155,9 @@ function renderHistory(){const box=document.getElementById("historyList");box.in
   }
   for(const [id,r] of Object.entries(oldAug)) if(!importedIds.has(id)) corrected[id]=r;
   localStorage.setItem("mc_collection_2026-08",JSON.stringify(corrected));
+  const augustFinal={};
+  for(const x of imported){const status=window.LIVING_STATUS?.[x[0]]; augustFinal["imp-"+x[0]]={contribution:window.CONTRIBUTIONS?.[x[0]]??0,leaveDays:0,leave:0,received:+(oldAug["imp-"+x[0]]?.received||0),messBase:status==="in"?7000:0};}
+  localStorage.setItem("mc_collection_2026-08",JSON.stringify(augustFinal));
   localStorage.setItem(VERSION,"1");
 })();
 function ensureOutLivingControl(){
