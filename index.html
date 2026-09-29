@@ -88,7 +88,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid 
 <script>
 const DEFAULT_SETTINGS={messAmount:7000,excludedRanks:["DD","AD","INSP"],rates:{DD:[1400,null],AD:[1180,null],INSP:[1400,null],SI:[1560,880],ASI:[1430,800],SGT:[1230,680],Cpl:[1140,610]},workerRates:{MED:0,MOD:0,Barber:0,Waiter:0,Welfare:0,"W.Man":0}};
 let appSettings=JSON.parse(localStorage.getItem("mc_settings_v1")||"null")||DEFAULT_SETTINGS;
-function settingsSave(){localStorage.setItem("mc_settings_v1",JSON.stringify(appSettings));cloudPut("settings",appSettings);updateHome();renderCollection();}
+async function settingsSave(){localStorage.setItem("mc_settings_v1",JSON.stringify(appSettings));try{await cloudPut("settings",appSettings)}catch(e){console.error(e)}updateHome();renderCollection();}
 function messAmount(){return Math.max(0,+appSettings.messAmount||0)}
 function excludedRanks(){return new Set((appSettings.excludedRanks||[]).map(x=>String(x).toUpperCase()))}
 function rateFor(rank){return appSettings.rates?.[rank]||DEFAULT_SETTINGS.rates[rank]||[0,0]}
@@ -104,14 +104,25 @@ let editId=null;
 
 const RANK_ORDER={DD:1,AD:2,INSP:3,SI:4,ASI:5,SGT:6,Sgt:6,CPL:7,Cpl:7}; function forceSort(a,b){const ra=RANK_ORDER[String(a.rank).toUpperCase()]||99,rb=RANK_ORDER[String(b.rank).toUpperCase()]||99;const na=parseInt(String(a.forceNo).match(/\d+/)?.[0]||"0",10),nb=parseInt(String(b.forceNo).match(/\d+/)?.[0]||"0",10);return ra-rb||na-nb||String(a.forceNo).localeCompare(String(b.forceNo))}
 let cloudOnline=false;
-async function cloudPut(keyName,value){try{const res=await fetch("/api/state",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({key:keyName,value})});cloudOnline=res.ok;setCloudStatus();}catch(e){cloudOnline=false;setCloudStatus();}}
+const cloudWrites={};
+async function cloudPut(keyName,value){
+  cloudWrites[keyName]=(cloudWrites[keyName]||Promise.resolve()).then(async()=>{
+    const res=await fetch("/api/state",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({key:keyName,value})});
+    if(!res.ok){let msg="Cloud save failed";try{const x=await res.json();msg=x.error||msg}catch(e){}throw new Error(msg)}
+    cloudOnline=true;setCloudStatus();return true;
+  }).catch(e=>{cloudOnline=false;setCloudStatus();throw e});
+  return cloudWrites[keyName];
+}
 async function initCloud(){try{const res=await fetch("/api/state",{cache:"no-store"});if(!res.ok)throw new Error("D1 API unavailable");const data=await res.json();cloudOnline=!!data.ok;const state=data.state||{};if(state.settings){appSettings=state.settings;localStorage.setItem("mc_settings_v1",JSON.stringify(appSettings));}else{await cloudPut("settings",appSettings);}if(Array.isArray(state.employees)&&state.employees.length){employees=state.employees.map(normalizeEmployee).filter(e=>e&&e.forceNo);employees.sort(forceSort);localStorage.setItem(STATUS_KEY,JSON.stringify(employees));}else{await cloudPut("employees",employees)}for(const k of Object.keys(state)){if(k.startsWith("records:"))localStorage.setItem(key(k.slice(8)),JSON.stringify(state[k]));}for(const k of Object.keys(localStorage)){if(k.startsWith("mc_record_v5_")){const m=k.slice("mc_record_v5_".length);if(!state["records:"+m])await cloudPut("records:"+m,JSON.parse(localStorage.getItem(k)));}}updateHome();renderEmployees();renderCollection();renderHistory();renderSettings();setCloudStatus();}catch(e){cloudOnline=false;setCloudStatus();}}
 function setCloudStatus(){const el=document.getElementById("monthTitle");if(el)el.title=cloudOnline?"Cloud database connected":"Cloud database unavailable — local backup active";}
 function monthLabel(m){const [y,mo]=m.split("-").map(Number);return new Date(y,mo-1,1).toLocaleString("en-US",{month:"long",year:"numeric"})}
 function monthDays(m){const [y,mo]=m.split("-").map(Number);return new Date(y,mo,0).getDate()}
 function key(m){return "mc_record_v5_"+m}
 function records(m=currentMonth){return JSON.parse(localStorage.getItem(key(m))||"{}")}
-function saveRecords(r,m=currentMonth){localStorage.setItem(key(m),JSON.stringify(r));cloudPut("records:"+m,r)}
+async function saveRecords(r,m=currentMonth){
+  localStorage.setItem(key(m),JSON.stringify(r));
+  try{await cloudPut("records:"+m,r);return true}catch(e){console.error(e);return false}
+}
 function contributionDefault(e){const rate=appSettings.rates?.[e.rank]||DEFAULT_SETTINGS.rates[e.rank];if(!rate)return 0;return e.living==="OUT"&&rate[1]!=null?rate[1]:rate[0]}
 function messEligible(e){return e.living==="IN"&&!excludedRanks().has(String(e.rank).toUpperCase())}
 function getRecord(e,m=currentMonth){const r=records(m)[e.id]||{};return {contribution:r.contribution==null?contributionDefault(e):+r.contribution||0,leaveDays:+r.leaveDays||0,leaveAmount:+r.leaveAmount||0,received:+r.received||0}}
@@ -143,9 +154,17 @@ function editEmployee(id){const e=employees.find(x=>x.id===id);if(!e)return;edit
 function deleteEmployee(id){const e=employees.find(x=>x.id===id);if(!e||!confirm("Delete "+e.name+"?"))return;employees=employees.filter(x=>x.id!==id);Object.keys(localStorage).filter(k=>k.startsWith("mc_record_v5_")).forEach(k=>{const r=JSON.parse(localStorage.getItem(k)||"{}");delete r[id];localStorage.setItem(k,JSON.stringify(r))});persistEmployees()}
 function renderEmployees(){const q=(document.getElementById("employeeSearch").value||"").toLowerCase();const list=employees.filter(e=>(e.forceNo+" "+e.rank+" "+e.name).toLowerCase().includes(q));document.getElementById("employeeMeta").textContent=employees.length+" employees • sorted by Force No";document.getElementById("employeeList").innerHTML=list.map((e,i)=>"<div class='employee'><div><strong>"+(employees.indexOf(e)+1)+". "+e.name+"</strong><small>"+e.rank+" • "+e.forceNo+"</small><span class='badge "+(e.living==="IN"?"in":"out")+"'>"+(e.living==="IN"?"IN Living":"Out Living")+"</span></div><div style='display:flex;gap:6px'><button class='btn' onclick='editEmployee(\""+e.id+"\")'>Edit</button><button class='btn danger' onclick='deleteEmployee(\""+e.id+"\")'>Delete</button></div></div>").join("")||"<div class='card empty'>No employees found.</div>"}
 function renderCollection(){const q=(document.getElementById("collectionSearch").value||"").toLowerCase(),r=records();const list=employees.filter(e=>(e.forceNo+" "+e.name).toLowerCase().includes(q));document.getElementById("collectionList").innerHTML=list.map(e=>{const x=calc(e,getRecord(e));return "<div class='card collection-card'><div style='display:flex;justify-content:space-between;gap:8px'><div><strong>"+e.name+"</strong><div class='muted'>"+e.rank+" • "+e.forceNo+"</div><span class='badge "+(e.living==="IN"?"in":"out")+"'>"+(e.living==="IN"?"IN Living":"Out Living")+"</span></div><span class='badge "+(x.fullyReceived?"received":"pending")+"'>"+(x.fullyReceived?"Received":"Pending")+"</span></div><div class='grid2'><div>Contribution<br><strong>Rs "+x.totalContribution.toLocaleString()+"</strong></div><div>Leave<br><strong>"+x.leaveDays+" days / Rs "+x.leaveAmount.toFixed(2)+"</strong></div><div>Mess<br><strong>Rs "+x.mess.toLocaleString(undefined,{maximumFractionDigits:2})+"</strong></div><div>Total<br><strong>Rs "+x.total.toLocaleString(undefined,{maximumFractionDigits:2})+"</strong></div><div>Received<br><strong>Rs "+x.received.toLocaleString()+"</strong></div></div><button class='btn' style='width:100%;margin-top:12px' onclick='editCollection(\""+e.id+"\")'>Enter / Update</button></div>"}).join("")||"<div class='card empty'>No employees found.</div>"}
-function editCollection(id){const e=employees.find(x=>x.id===id),r=getRecord(e),d=calc(e,r);const contribution=prompt("Contribution amount:",r.contribution);if(contribution===null)return;let leaveDays=0;if(messEligible(e)){leaveDays=prompt("Leave days:",r.leaveDays);if(leaveDays===null)return}const received=prompt("Received amount:",r.received);if(received===null)return;const all=records();all[id]={contribution:Math.max(0,+contribution||0),leaveDays:Math.max(0,+leaveDays||0),leaveAmount:0,received:Math.max(0,+received||0)};saveRecords(all);renderCollection();updateHome()}
+async function editCollection(id){const e=employees.find(x=>x.id===id),r=getRecord(e),d=calc(e,r);const contribution=prompt("Contribution amount:",r.contribution);if(contribution===null)return;let leaveDays=0;if(messEligible(e)){leaveDays=prompt("Leave days:",r.leaveDays);if(leaveDays===null)return}const received=prompt("Received amount:",r.received);if(received===null)return;const all=records();all[id]={contribution:Math.max(0,+contribution||0),leaveDays:Math.max(0,+leaveDays||0),leaveAmount:0,received:Math.max(0,+received||0)};
+const saved=await saveRecords(all);
+if(!saved){alert("Cloud database save failed. Received amount was not confirmed online.");return}
+renderCollection();updateHome()}
 function updateHome(){let total=0,receivedAmount=0,received=0,pending=0;employees.forEach(e=>{const x=calc(e,getRecord(e));total+=x.total;receivedAmount+=x.received;if(x.fullyReceived)received++;else pending++});document.getElementById("totalEmployees").textContent=employees.length;document.getElementById("receivedCount").textContent=received;document.getElementById("pendingCount").textContent=pending;document.getElementById("totalAmount").textContent="Rs "+Math.round(total).toLocaleString();document.getElementById("receivedAmount").textContent="Rs "+Math.round(receivedAmount).toLocaleString()}
-function seedAugustIfNeeded(){if(localStorage.getItem("mc_seed_august_v5"))return;const r={};employees.forEach(e=>{r[e.id]={contribution:contributionDefault(e),leaveDays:0,leaveAmount:0,received:0}});saveRecords(r,"2026-08");localStorage.setItem("mc_seed_august_v5","1")}
+async function seedAugustIfNeeded(){
+  if(localStorage.getItem("mc_seed_august_v5"))return;
+  const r={};employees.forEach(e=>{r[e.id]={contribution:contributionDefault(e),leaveDays:0,leaveAmount:0,received:0}});
+  const saved=await saveRecords(r,"2026-08");
+  if(saved)localStorage.setItem("mc_seed_august_v5","1");
+}
 function renderHistory(){const months=[];for(let i=0;i<12;i++){const [yy,mm]=currentMonth.split("-").map(Number),d=new Date(yy,mm-1-i,1),m=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"),r=records(m);if(!Object.keys(r).length)continue;let t=0,rec=0;employees.forEach(e=>{const x=calc(e,getRecord(e,m),m);t+=x.total;rec+=x.received});months.push("<div class='card' style='margin-bottom:10px'><strong>"+monthLabel(m)+"</strong><div class='muted'>Total Rs "+Math.round(t).toLocaleString()+" • Received Rs "+Math.round(rec).toLocaleString()+"</div><button class='btn' style='margin-top:8px' onclick='changeMonth(\""+m+"\");show(\"collection\")'>Open Month</button></div>")}document.getElementById("historyList").innerHTML=months.join("")||"<div class='card empty'>No monthly records yet.</div>"}
 function csvEscape(v){return '"'+String(v??"").replace(/"/g,'""')+'"'}
 function exportCSV(rows,name){const csv=rows.map(r=>r.map(csvEscape).join(",")).join("\n"),blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
