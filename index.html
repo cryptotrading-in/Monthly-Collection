@@ -209,6 +209,7 @@ async function saveChargeEditor(){
     cfg.configured=true;
   }
   if(t==="ranks")return;
+  delete appSettings.workerRates;
   const saved=await settingsSave();
   if(!saved){appSettings=previous;localStorage.setItem("mc_settings_v1",JSON.stringify(appSettings));return}
   closeChargeEditor();
