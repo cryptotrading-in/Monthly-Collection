@@ -182,7 +182,7 @@ function openChargeEditor(type){
     title.textContent="Rank Contributions";
     html=RANKS.map(rank=>{
       const cfg=appSettings.rankContributions[rank], total=cfg.configured?CONTRIBUTION_TYPES.reduce((s,t)=>s+(+cfg.values?.[t]||0),0):((cfg.legacyTotal||[0,0])[0]||0);
-      return '<div class="rank-card"><div><h4>'+rank+'</h4><div class="rank-total">Current total: Rs '+total.toLocaleString()+'</div></div><button class="rank-open" onclick="openRankContribution(\\''+rank+'\\')">Edit</button></div>';
+      return '<div class="rank-card"><div><h4>'+rank+'</h4><div class="rank-total">Current total: Rs '+total.toLocaleString()+'</div></div><button class="rank-open" onclick="openRankContribution(\''+rank+'\\')">Edit</button></div>';
     }).join("");
   }
   if(type==="exclusions"){
