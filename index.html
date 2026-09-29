@@ -126,7 +126,7 @@ function exportContribution(){const m=exportMonth(),rows=[["Sr","Force No","Rank
 function exportFull(){const m=exportMonth(),rows=[["Sr","Force No","Rank","Name","Living Status","Contribution","Leave Days","Leave Amount","Mess","Total","Received"]];employees.forEach((e,i)=>{const x=calc(e,getRecord(e,m),m);rows.push([i+1,e.forceNo,e.rank,e.name,e.living==="IN"?"IN Living":"Out Living",x.totalContribution,x.leaveDays,x.leaveAmount.toFixed(2),x.mess.toFixed(2),x.total.toFixed(2),x.received])});exportCSV(rows,"Full-Report-"+m+".csv")}
 const _calc=calc;calc=function(e,r,m){const base=_calc(e,r,m);return {...base,totalContribution:r.contribution,total:base.total,leaveAmount:base.leaveAmount}}
 document.getElementById("monthTitle").textContent=monthLabel(currentMonth);
-fillMonths();seedAugustIfNeeded();ensureMonth(currentMonth);updateHome();renderEmployees();renderCollection();renderHistory();initCloud();
+fillMonths();seedAugustIfNeeded();updateHome();renderEmployees();renderCollection();renderHistory();initCloud();
 </script>
 </body>
 </html>
