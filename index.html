@@ -88,7 +88,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid 
 <script>
 const DEFAULT_SETTINGS={messAmount:7000,excludedRanks:["DD","AD","INSP"],rates:{DD:[1400,null],AD:[1180,null],INSP:[1400,null],SI:[1560,880],ASI:[1430,800],SGT:[1230,680],Cpl:[1140,610]},workerRates:{MED:0,MOD:0,Barber:0,Waiter:0,Welfare:0,"W.Man":0}};
 let appSettings=JSON.parse(localStorage.getItem("mc_settings_v1")||"null")||DEFAULT_SETTINGS;
-async function settingsSave(){localStorage.setItem("mc_settings_v1",JSON.stringify(appSettings));try{await cloudPut("settings",appSettings);updateHome();renderCollection();renderSettings();return true}catch(e){console.error(e);alert("Cloud database save failed. Settings were not confirmed online.");return false}}
+async function settingsSave(){try{await cloudPut("settings",appSettings);localStorage.setItem("mc_settings_v1",JSON.stringify(appSettings));updateHome();renderCollection();renderSettings();return true}catch(e){console.error(e);alert("Cloud database save failed. Settings were not saved.");return false}}
 function messAmount(){return Math.max(0,+appSettings.messAmount||0)}
 function excludedRanks(){return new Set((appSettings.excludedRanks||[]).map(x=>String(x).toUpperCase()))}
 function rateFor(rank){return appSettings.rates?.[rank]||DEFAULT_SETTINGS.rates[rank]||[0,0]}
@@ -140,14 +140,13 @@ function monthDays(m){const [y,mo]=m.split("-").map(Number);return new Date(y,mo
 function key(m){return "mc_record_v5_"+m}
 function records(m=currentMonth){return JSON.parse(localStorage.getItem(key(m))||"{}")}
 async function saveRecords(r,m=currentMonth){
-  localStorage.setItem(key(m),JSON.stringify(r));
-  try{await cloudPut("records:"+m,r);return true}catch(e){console.error(e);return false}
+  try{await cloudPut("records:"+m,r);localStorage.setItem(key(m),JSON.stringify(r));return true}catch(e){console.error(e);return false}
 }
 function contributionDefault(e){const rate=appSettings.rates?.[e.rank]||DEFAULT_SETTINGS.rates[e.rank];if(!rate)return 0;return e.living==="OUT"&&rate[1]!=null?rate[1]:rate[0]}
 function messEligible(e){return e.living==="IN"&&!excludedRanks().has(String(e.rank).toUpperCase())}
 function getRecord(e,m=currentMonth){const r=records(m)[e.id]||{};return {contribution:r.contribution==null?contributionDefault(e):+r.contribution||0,leaveDays:+r.leaveDays||0,leaveAmount:+r.leaveAmount||0,received:+r.received||0}}
 function calc(e,r,m=currentMonth){const leaveDays=messEligible(e)?Math.max(0,r.leaveDays):0;const leaveAmount=messEligible(e)?Math.min(messAmount(),(messAmount()/monthDays(m))*leaveDays):0;const mess=messEligible(e)?Math.max(0,messAmount()-leaveAmount):0;const total=r.contribution+mess;return {leaveDays,leaveAmount,mess,total,received:r.received,pending:Math.max(0,total-r.received),fullyReceived:total>0&&r.received>=total}}
-async function persistEmployees(){employees=employees.map(normalizeEmployee).filter(e=>e&&e.forceNo);employees.sort(forceSort);localStorage.setItem(STATUS_KEY,JSON.stringify(employees));try{await cloudPut("employees",employees)}catch(e){alert("Cloud database save failed. Employee changes were not confirmed online.");return}updateHome();renderEmployees();renderCollection()}
+async function persistEmployees(){employees=employees.map(normalizeEmployee).filter(e=>e&&e.forceNo);employees.sort(forceSort);try{await cloudPut("employees",employees);localStorage.setItem(STATUS_KEY,JSON.stringify(employees))}catch(e){alert("Cloud database save failed. Employee changes were not saved.");return}updateHome();renderEmployees();renderCollection()}
 function showHistory(){show("history")}
 function show(id){document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));document.getElementById("nav-"+id)?.classList.add("active");if(id==="employees")renderEmployees();if(id==="collection")renderCollection();if(id==="reports")fillReportMonths();if(id==="history")renderHistory();if(id==="settings")renderSettings()}
 let settingsEditorType=null;
