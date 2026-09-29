@@ -1,0 +1,9 @@
+name = "monthly-collection"
+compatibility_date = "2026-09-29"
+pages_build_output_dir = "."
+
+[[d1_databases]]
+binding = "db"
+database_name = "db"
+database_id = "aaca0ea2-4e76-4060-9aed-092e94412852"
+migrations_dir = "migrations"
