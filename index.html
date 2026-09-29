@@ -14,11 +14,11 @@ header{display:flex;justify-content:space-between;align-items:center;margin-bott
 nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e7eaf0;display:flex;justify-content:center;padding:8px 4px calc(8px + env(safe-area-inset-bottom));z-index:5}nav button{background:transparent;color:#667085;padding:7px 12px;font-size:11px;font-weight:650}nav button.active{color:#2563eb}
 .section{display:none}.section.active{display:block}.search{width:100%;padding:12px;border:1px solid #dfe3ea;border-radius:11px;background:#fff;margin:10px 0}.employee{display:flex;justify-content:space-between;gap:10px;background:#fff;border:1px solid #e7eaf0;border-radius:14px;padding:14px;margin-bottom:9px}.employee small{display:block;color:#667085;margin-top:4px}.badge{font-size:10px;font-weight:700;border-radius:99px;padding:5px 8px;white-space:nowrap}.in{color:#16834b;background:#ecfdf3}.out{color:#9a6700;background:#fff7cc;border:1px solid #f2d675}.pending{color:#b54708;background:#fffaeb}.received{color:#16834b;background:#ecfdf3}.btn{padding:8px 10px;border:1px solid #dfe3ea;border-radius:9px;background:#fff}.danger{color:#c62828;border-color:#f0caca;background:#fff5f5}.fab{position:fixed;right:18px;bottom:82px;width:52px;height:52px;border-radius:50%;background:#2563eb;color:#fff;font-size:25px}.form{display:none;background:#fff;border:1px solid #e7eaf0;border-radius:16px;padding:15px;margin:12px 0}.form.show{display:block}.form label{display:block;font-size:12px;font-weight:650;margin:9px 0 5px}.form input,.form select{width:100%;padding:11px;border:1px solid #dfe3ea;border-radius:10px;background:#fff}.save{width:100%;margin-top:14px;padding:12px;border-radius:10px;background:#2563eb;color:#fff;font-weight:700}.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.toolbar>*{flex:1;min-width:120px}.select{padding:11px;border:1px solid #dfe3ea;border-radius:10px;background:#fff;width:100%}.collection-card{margin-bottom:10px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px;font-size:13px}.muted{color:#667085;font-size:12px}.report-btn{padding:11px;border:1px solid #dfe3ea;border-radius:10px;background:#fff;font-weight:650}.empty{text-align:center;color:#667085;padding:20px}
 @media(min-width:700px){.app{padding-top:28px}.stats{grid-template-columns:repeat(5,1fr)}}
-</style>
+.top-settings{position:absolute;right:14px;top:12px;width:42px;height:42px;border:0;border-radius:13px;background:#fff;box-shadow:0 4px 18px rgba(0,0,0,.08);font-size:20px;z-index:5}.settings-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}.eyebrow{font-size:10px;letter-spacing:1.3px;font-weight:800;opacity:.55}.settings-card{display:flex;align-items:center;gap:12px;padding:16px;margin:10px 0;background:#fff;border:1px solid #e8ebf0;border-radius:16px;box-shadow:0 3px 12px rgba(0,0,0,.04);cursor:pointer}.settings-card>div{flex:1}.settings-card strong,.settings-card .muted{display:block}.settings-card strong{font-size:15px}.settings-card .muted{font-size:12px;margin-top:4px}.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(15,23,42,.42);z-index:100;padding:16px;align-items:flex-end}.modal-backdrop.open{display:flex}.modal-sheet{width:100%;max-height:88vh;overflow:auto;background:#fff;border-radius:22px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.2)}.modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}.icon-btn{border:0;background:#f2f4f7;border-radius:11px;width:36px;height:36px;font-size:20px}.settings-field{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #edf0f3}.settings-field input{width:100px;padding:9px;border:1px solid #d9dee6;border-radius:9px;text-align:right}.rank-card{padding:13px 0;border-bottom:1px solid #edf0f3}.rank-card h4{margin:0 0 9px}.worker-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.worker-item{border:1px solid #e3e7ed;border-radius:12px;padding:10px}.worker-item input{width:100%;margin-top:6px}@media(max-width:430px){.top-settings{right:10px;top:9px}.modal-backdrop{padding:0}.modal-sheet{border-radius:22px 22px 0 0}}</style>
 </head>
 <body>
 <main class="app">
-<header><div><h1>Monthly Collection</h1><div id="monthTitle" class="month">August 2026</div></div></header>
+<header><button class="top-settings" onclick="show('settings')" aria-label="Settings">⚙</button><div><h1>Monthly Collection</h1><div id="monthTitle" class="month">August 2026</div></div></header>
 
 <section id="home" class="section active">
 <div class="stats">
@@ -69,25 +69,13 @@ nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid 
 </section>
 
 <section id="settings" class="section">
-<h2>Settings</h2>
-<div class="card">
-<div class="label">Monthly Mess Charge</div>
-<input id="setMess" type="number" min="0" class="search" style="margin:8px 0">
-<div class="muted">This is the Rs 7,000 amount used for eligible IN Living employees. Leave deduction is calculated from this amount using the actual days in the selected month.</div>
-</div>
-<div class="card" style="margin-top:12px">
-<h3 style="margin-top:0">Contribution Charges</h3>
-<div class="muted">Change IN Living and Out Living contribution amounts by rank. Use 0 when no contribution applies.</div>
-<div id="rateSettings"></div>
-</div>
-<div class="card" style="margin-top:12px">
-<h3 style="margin-top:0">Mess Exclusions</h3>
-<div class="muted">These ranks do not receive the monthly mess charge.</div>
-<div id="excludeSettings"></div>
-</div>
-<button class="save" onclick="saveSettings()">Save Settings</button>
-<button class="report-btn" style="width:100%;margin-top:9px" onclick="resetSettings()">Reset to Default</button>
+<div class="settings-head"><div><div class="eyebrow">SYSTEM SETTINGS</div><h2>Charges & Contributions</h2><div class="muted">Tap a category to edit its values.</div></div><button class="icon-btn" onclick="show('home')">×</button></div>
+<div class="settings-card" onclick="openChargeEditor('mess')"><div><strong>Monthly Mess</strong><span class="muted">Current monthly mess charge</span></div><b id="settingMessSummary">Rs 7,000</b><span>›</span></div>
+<div class="settings-card" onclick="openChargeEditor('ranks')"><div><strong>Rank Contributions</strong><span class="muted">SI, ASI, Cpl, etc.</span></div><span>›</span></div>
+<div class="settings-card" onclick="openChargeEditor('workers')"><div><strong>Worker Contributions</strong><span class="muted">MED, MOD, Barber, Waiter & more</span></div><span>›</span></div>
+<div class="settings-card" onclick="openChargeEditor('exclusions')"><div><strong>Mess Exclusions</strong><span class="muted">Ranks excluded from monthly mess</span></div><span>›</span></div>
 </section>
+<div id="settingsModal" class="modal-backdrop" onclick="if(event.target===this)closeChargeEditor()"><div class="modal-sheet"><div class="modal-head"><div><div class="eyebrow">EDIT SETTINGS</div><h3 id="settingsModalTitle">Settings</h3></div><button class="icon-btn" onclick="closeChargeEditor()">×</button></div><div id="settingsModalBody"></div><button class="save" onclick="saveChargeEditor()">Save Changes</button></div></div>
 
 </main>
 <nav>
@@ -96,7 +84,6 @@ nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid 
 <button id="nav-collection" onclick="show('collection')">▣<br>Collection</button>
 <button id="nav-history" onclick="showHistory()">◷<br>History</button>
 <button id="nav-reports" onclick="show('reports')">⇩<br>Reports</button>
-<button id="nav-settings" onclick="show('settings')">⚙<br>Settings</button>
 </nav>
 <script src="data/imported-august-2026.js"></script>
 <script>
@@ -133,22 +120,21 @@ function calc(e,r,m=currentMonth){const leaveDays=messEligible(e)?Math.max(0,r.l
 function persistEmployees(){employees.sort(forceSort);localStorage.setItem(STATUS_KEY,JSON.stringify(employees));cloudPut("employees",employees);updateHome();renderEmployees();renderCollection()}
 function showHistory(){show("history")}
 function show(id){document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));document.getElementById("nav-"+id)?.classList.add("active");if(id==="employees")renderEmployees();if(id==="collection")renderCollection();if(id==="reports")fillReportMonths();if(id==="history")renderHistory();if(id==="settings")renderSettings()}
-function renderSettings(){
-document.getElementById("setMess").value=messAmount();
-const ranks=["DD","AD","INSP","SI","ASI","SGT","Cpl"];
-document.getElementById("rateSettings").innerHTML=ranks.map(r=>{const v=appSettings.rates?.[r]||[0,0];return "<div style='border-top:1px solid #e7eaf0;padding:12px 0'><strong>"+r+"</strong><div class='grid2'><label>IN Living<input id='in-"+r+"' type='number' min='0' value='"+(v[0]??0)+"'></label><label>Out Living<input id='out-"+r+"' type='number' min='0' value='"+(v[1]??0)+"'></label></div></div>"}).join("");
-document.getElementById("excludeSettings").innerHTML=["DD","AD","INSP","SI","ASI","SGT","Cpl"].map(r=>"<label style='display:block;padding:8px 0'><input type='checkbox' id='ex-"+r+"' "+(excludedRanks().has(r.toUpperCase())?"checked":"")+"> "+r+"</label>").join("");
-}
-function saveSettings(){
-const ranks=["DD","AD","INSP","SI","ASI","SGT","Cpl"];
-appSettings.messAmount=Math.max(0,+document.getElementById("setMess").value||0);
-appSettings.rates=appSettings.rates||{};
-ranks.forEach(r=>{appSettings.rates[r]=[Math.max(0,+document.getElementById("in-"+r).value||0),Math.max(0,+document.getElementById("out-"+r).value||0)]});
-appSettings.excludedRanks=ranks.filter(r=>document.getElementById("ex-"+r).checked);
-settingsSave();
-alert("Settings saved");
-}
-function resetSettings(){if(!confirm("Reset all charges to default?"))return;appSettings=JSON.parse(JSON.stringify(DEFAULT_SETTINGS));settingsSave();renderSettings();}
+let settingsEditorType=null;
+function renderSettings(){const el=document.getElementById("settingMessSummary");if(el)el.textContent="Rs "+messAmount().toLocaleString();}
+function openChargeEditor(type){settingsEditorType=type;const modal=document.getElementById("settingsModal"),body=document.getElementById("settingsModalBody"),title=document.getElementById("settingsModalTitle");let html="";
+if(type==="mess"){title.textContent="Monthly Mess";html='<div class="settings-field"><span>Monthly Mess Charge</span><input id="editMess" type="number" min="0" value="'+messAmount()+'"></div>';}
+if(type==="ranks"){title.textContent="Rank Contributions";html=["DD","AD","INSP","SI","ASI","SGT","Cpl"].map(r=>{const v=appSettings.rates?.[r]||[0,0];return '<div class="rank-card"><h4>'+r+'</h4><div class="worker-grid"><label>IN Living<input id="rin-'+r+'" type="number" value="'+(v[0]??0)+'"></label><label>Out Living<input id="rout-'+r+'" type="number" value="'+(v[1]??0)+'"></label></div></div>'}).join("");}
+if(type==="workers"){title.textContent="Worker Contributions";const names=["MED","MOD","Barber","Waiter"];appSettings.workerRates=appSettings.workerRates||{};html='<div class="worker-grid">'+names.map(n=>'<label class="worker-item">'+n+'<input id="worker-'+n.toLowerCase()+'" type="number" min="0" value="'+(appSettings.workerRates[n]??0)+'"></label>').join("")+'</div><div class="muted" style="margin-top:12px">Additional worker categories can be added here as the contribution list expands.</div>';}
+if(type==="exclusions"){title.textContent="Mess Exclusions";const ranks=["DD","AD","INSP","SI","ASI","SGT","Cpl"];html=ranks.map(r=>'<label class="settings-field"><span>'+r+'</span><input type="checkbox" id="ex-'+r+'" '+(excludedRanks().has(r.toUpperCase())?"checked":"")+'></label>').join("");}
+body.innerHTML=html;modal.classList.add("open");}
+function closeChargeEditor(){document.getElementById("settingsModal").classList.remove("open");settingsEditorType=null;}
+function saveChargeEditor(){const t=settingsEditorType,ranks=["DD","AD","INSP","SI","ASI","SGT","Cpl"];appSettings.rates=appSettings.rates||{};
+if(t==="mess")appSettings.messAmount=Math.max(0,+document.getElementById("editMess").value||0);
+if(t==="ranks")ranks.forEach(r=>{appSettings.rates[r]=[Math.max(0,+document.getElementById("rin-"+r).value||0),Math.max(0,+document.getElementById("rout-"+r).value||0)]});
+if(t==="workers"){appSettings.workerRates=appSettings.workerRates||{};["MED","MOD","Barber","Waiter"].forEach(n=>appSettings.workerRates[n]=Math.max(0,+document.getElementById("worker-"+n.toLowerCase()).value||0));}
+if(t==="exclusions")appSettings.excludedRanks=ranks.filter(r=>document.getElementById("ex-"+r).checked);
+settingsSave();renderSettings();closeChargeEditor();}
 function fillMonths(){const opts=[];const d=new Date(2026,7,1);for(let i=-2;i<13;i++){const x=new Date(d.getFullYear(),d.getMonth()+i,1),m=x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0");opts.push("<option value='"+m+"'>"+monthLabel(m)+"</option>")}document.getElementById("monthSelect").innerHTML=opts.join("");document.getElementById("monthSelect").value=currentMonth;fillReportMonths()}
 function fillReportMonths(){const el=document.getElementById("reportMonth");if(!el)return;el.innerHTML=document.getElementById("monthSelect").innerHTML;el.value=currentMonth}
 function changeMonth(m){currentMonth=m;localStorage.setItem(MONTH_KEY,m);document.getElementById("monthTitle").textContent=monthLabel(m);document.getElementById("monthSelect").value=m;document.getElementById("reportMonth").value=m;seedAugustIfNeeded();updateHome();renderCollection()}
