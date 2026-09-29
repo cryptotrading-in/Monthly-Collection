@@ -6,257 +6,122 @@
 <title>Monthly Collection</title>
 <style>
 :root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172033;background:#f5f7fb}
-*{box-sizing:border-box}body{margin:0;background:#f5f7fb}button{font:inherit;border:0}
-.app{max-width:760px;margin:auto;min-height:100vh;padding:18px 16px 92px}
-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
-h1{font-size:22px;margin:0}.month{color:#667085;font-size:13px;margin-top:4px}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}.card{background:#fff;border:1px solid #e7eaf0;border-radius:16px;padding:18px;box-shadow:0 2px 10px #10182808}
-.stat:last-child{grid-column:1/-1}.label{font-size:12px;color:#667085;font-weight:600;text-transform:uppercase;letter-spacing:.04em}.value{font-size:30px;font-weight:750;margin-top:6px}
-.quick{margin-top:22px}.quick h2{font-size:16px;margin:0 0 12px}.action{width:100%;background:#fff;border:1px solid #e7eaf0;border-radius:14px;padding:16px;text-align:left;margin-bottom:10px;font-weight:650;color:#172033}
-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e7eaf0;display:flex;justify-content:center;padding:9px 8px calc(9px + env(safe-area-inset-bottom));z-index:5}
-nav button{background:transparent;color:#667085;padding:8px 16px;font-size:12px;font-weight:600}nav button.active{color:#2563eb}
-@media(min-width:700px){.app{padding-top:28px}.stats{grid-template-columns:repeat(3,1fr)}.stat:last-child{grid-column:auto}}
-.section{display:none}.section.active{display:block}.search{width:100%;padding:13px;border:1px solid #dfe3ea;border-radius:12px;background:#fff;margin:12px 0}.employee{display:flex;justify-content:space-between;background:#fff;border:1px solid #e7eaf0;border-radius:14px;padding:15px;margin-bottom:10px}.employee small{display:block;color:#667085;margin-top:4px}.badge{font-size:11px;font-weight:700;color:#16834b;background:#ecfdf3;border-radius:99px;padding:6px 9px}.fab{position:fixed;right:18px;bottom:82px;width:52px;height:52px;border-radius:50%;background:#2563eb;color:#fff;font-size:25px}.form{display:none;background:#fff;border:1px solid #e7eaf0;border-radius:16px;padding:16px;margin-top:12px}.form.show{display:block}.form label{display:block;font-size:12px;margin:10px 0 5px}.form input,.form select{width:100%;padding:12px;border:1px solid #dfe3ea;border-radius:11px}.save{width:100%;margin-top:15px;padding:13px;border-radius:11px;background:#2563eb;color:#fff;font-weight:700}<style>
-.leave-panel{background:#fff;border:1px solid #e7eaf0;border-radius:16px;padding:16px;margin-top:16px}.leave-panel label{display:block;font-size:12px;font-weight:700;color:#475467;margin:12px 0 6px}.leave-panel input{width:100%;padding:13px;border:1px solid #dfe3ea;border-radius:11px}.leave-result{margin-top:14px;padding:14px;border-radius:12px;background:#f5f7fb}.leave-result strong{font-size:24px}
-<style>.history-row{background:#fff;border:1px solid #e7eaf0;border-radius:14px;padding:15px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}.history-meta{color:#667085;font-size:12px;margin-top:4px}.history-total{font-weight:750;font-size:16px}.history-empty{padding:20px;text-align:center;color:#667085}</style></style></style>
+*{box-sizing:border-box}body{margin:0;background:#f5f7fb}button,input,select{font:inherit}
+.app{max-width:900px;margin:auto;min-height:100vh;padding:18px 16px 92px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}h1{font-size:22px;margin:0}.month{color:#667085;font-size:13px;margin-top:4px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}.card{background:#fff;border:1px solid #e7eaf0;border-radius:16px;padding:16px;box-shadow:0 2px 10px #10182808}.label{font-size:11px;color:#667085;font-weight:700;text-transform:uppercase;letter-spacing:.04em}.value{font-size:27px;font-weight:750;margin-top:6px}
+.quick{margin-top:22px}.quick h2,.section h2{font-size:17px;margin:0 0 12px}.action{width:100%;background:#fff;border:1px solid #e7eaf0;border-radius:14px;padding:14px;text-align:left;margin-bottom:9px;font-weight:650;color:#172033}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e7eaf0;display:flex;justify-content:center;padding:8px 4px calc(8px + env(safe-area-inset-bottom));z-index:5}nav button{background:transparent;color:#667085;padding:7px 12px;font-size:11px;font-weight:650}nav button.active{color:#2563eb}
+.section{display:none}.section.active{display:block}.search{width:100%;padding:12px;border:1px solid #dfe3ea;border-radius:11px;background:#fff;margin:10px 0}.employee{display:flex;justify-content:space-between;gap:10px;background:#fff;border:1px solid #e7eaf0;border-radius:14px;padding:14px;margin-bottom:9px}.employee small{display:block;color:#667085;margin-top:4px}.badge{font-size:10px;font-weight:700;border-radius:99px;padding:5px 8px;white-space:nowrap}.in{color:#16834b;background:#ecfdf3}.out{color:#9a6700;background:#fff7cc;border:1px solid #f2d675}.pending{color:#b54708;background:#fffaeb}.received{color:#16834b;background:#ecfdf3}.btn{padding:8px 10px;border:1px solid #dfe3ea;border-radius:9px;background:#fff}.danger{color:#c62828;border-color:#f0caca;background:#fff5f5}.fab{position:fixed;right:18px;bottom:82px;width:52px;height:52px;border-radius:50%;background:#2563eb;color:#fff;font-size:25px}.form{display:none;background:#fff;border:1px solid #e7eaf0;border-radius:16px;padding:15px;margin:12px 0}.form.show{display:block}.form label{display:block;font-size:12px;font-weight:650;margin:9px 0 5px}.form input,.form select{width:100%;padding:11px;border:1px solid #dfe3ea;border-radius:10px;background:#fff}.save{width:100%;margin-top:14px;padding:12px;border-radius:10px;background:#2563eb;color:#fff;font-weight:700}.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.toolbar>*{flex:1;min-width:120px}.select{padding:11px;border:1px solid #dfe3ea;border-radius:10px;background:#fff;width:100%}.collection-card{margin-bottom:10px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px;font-size:13px}.muted{color:#667085;font-size:12px}.report-btn{padding:11px;border:1px solid #dfe3ea;border-radius:10px;background:#fff;font-weight:650}.empty{text-align:center;color:#667085;padding:20px}
+@media(min-width:700px){.app{padding-top:28px}.stats{grid-template-columns:repeat(5,1fr)}}
+</style>
 </head>
 <body>
 <main class="app">
-<header><div><h1>Monthly Collection</h1><div class="month">September 2026</div></div><button aria-label="More">⋮</button></header>
-<section class="stats" aria-label="Payment status">
-<div class="card stat"><div class="label">Total Employees</div><div class="value" id="totalEmployees">0</div></div>
-<div class="card stat"><div class="label">Payment Received</div><div class="value" id="receivedCount">0</div></div>
-<div class="card stat"><div class="label">Payment Pending</div><div class="value" id="pendingCount">0</div></div>
+<header><div><h1>Monthly Collection</h1><div id="monthTitle" class="month">August 2026</div></div></header>
+
+<section id="home" class="section active">
+<div class="stats">
+<div class="card"><div class="label">Total Employees</div><div class="value" id="totalEmployees">0</div></div>
+<div class="card"><div class="label">Received Employees</div><div class="value" id="receivedCount">0</div></div>
+<div class="card"><div class="label">Pending Employees</div><div class="value" id="pendingCount">0</div></div>
+<div class="card"><div class="label">Total Amount</div><div class="value" id="totalAmount">Rs 0</div></div>
+<div class="card"><div class="label">Received Amount</div><div class="value" id="receivedAmount">Rs 0</div></div>
+</div>
+<div class="quick"><h2>Quick Actions</h2>
+<button class="action" onclick="show('collection')">💰 Monthly Collection</button>
+<button class="action" onclick="show('employees')">👤 Employees</button>
+<button class="action" onclick="show('reports')">📤 Export Reports</button>
+</div>
 </section>
-<section class="quick"><h2>Quick Actions</h2>
-<button class="action">💰 Monthly Collection</button>
-<button class="action">👤 Add Employee</button>
-<button class="action" onclick="showLeaveCalculator()">🧮 Leave Calculator</button>
-</section><section id="employees" class="section"><h2>Employees</h2><div id="activeCount" class="month">0 Active</div><input id="search" class="search" placeholder="🔍 Search Force No or Name" oninput="renderEmployees()"><div id="employeeList"></div><button class="fab" onclick="toggleForm()">+</button><div id="employeeForm" class="form"><h2>Add Employee</h2><label>Force No</label><input id="forceNo"><label>Rank</label><select id="rank"><option value="">Select rank</option><option>DD</option><option>AD</option><option>INSP</option><option>SI</option><option>ASI</option><option>HC</option><option>PC</option></select><label>Name</label><input id="name"><button class="save" onclick="addEmployee()">Save Employee</button></div></section><section id="collection" class="section"><h2>Monthly Collection</h2><div class="card" style="margin-bottom:12px"><label style="font-size:12px;font-weight:700;color:#667085">MONTH</label><select id="monthSelect" onchange="changeMonth(this.value)" style="width:100%;padding:12px;border:1px solid #dfe3ea;border-radius:11px;margin-top:7px;background:#fff"><option value="2026-08">August 2026</option><option value="2026-09">September 2026</option><option value="2026-10">October 2026</option><option value="2026-11">November 2026</option><option value="2026-12">December 2026</option></select></div><input id="collectionSearch" class="search" placeholder="🔍 Search employee"><div id="collectionList"></div></section><section id="leaveCalculator" class="section"><h2>Leave Calculator</h2><div class="sub">Calculate the Mess deduction for leave days.</div><div class="leave-panel"><label>Mess Amount</label><input id="calcMess" type="number" value="7000" min="0" oninput="calculateLeave()"><label>Days in Month</label><input id="calcMonthDays" type="number" value="30" min="1" oninput="calculateLeave()"><label>Leave Days</label><input id="calcLeaveDays" type="number" value="0" min="0" oninput="calculateLeave()"><div class="leave-result">Per Day: <strong id="calcPerDay">Rs 233.33</strong><br><br>Leave Amount: <strong id="calcLeaveAmount">Rs 0.00</strong><br><small class="sub">This amount is deducted from Mess.</small></div></div></section><section id="history" class="section"><h2>Collection History</h2><div class="sub">Monthly collection records</div><div id="historyList" style="margin-top:14px"></div></section></main><nav><button id="nav-home" class="active" onclick="show('home')">⌂<br>Home</button><button id="nav-employees" onclick="show('employees')">♙<br>Employees</button><button id="nav-collection" onclick="show('collection')">▣<br>Collection</button><button id="nav-history" onclick="showHistory()">◷<br>History</button><button>☰<br>Menu</button></nav>
+
+<section id="employees" class="section">
+<h2>Employees</h2><div id="employeeMeta" class="month"></div>
+<input id="employeeSearch" class="search" placeholder="🔍 Search Force No, Rank or Name" oninput="renderEmployees()">
+<div id="employeeForm" class="form">
+<h3 id="formTitle" style="margin:0">Add Employee</h3>
+<label>Force No</label><input id="forceNo">
+<label>Rank</label><select id="rank"><option value="">Select rank</option><option>DD</option><option>AD</option><option>INSP</option><option>SI</option><option>ASI</option><option>SGT</option><option>Sgt</option><option>Cpl</option></select>
+<label>Name</label><input id="name">
+<label>Living Status</label><select id="living"><option value="IN">IN Living</option><option value="OUT">Out Living</option></select>
+<button class="save" onclick="saveEmployee()">Save Employee</button>
+</div>
+<div id="employeeList"></div><button class="fab" onclick="openAdd()">+</button>
+</section>
+
+<section id="collection" class="section">
+<h2>Monthly Collection</h2>
+<div class="toolbar"><select id="monthSelect" class="select" onchange="changeMonth(this.value)"></select><input id="collectionSearch" class="search" style="margin:0" placeholder="🔍 Search employee" oninput="renderCollection()"></div>
+<div id="collectionList"></div>
+</section>
+
+<section id="reports" class="section">
+<h2>Export Reports</h2>
+<div class="card"><div class="muted">Select month, then export only the section you need.</div><select id="reportMonth" class="select" style="margin-top:10px"></select>
+<div class="toolbar">
+<button class="report-btn" onclick="exportMess()">Mess + Leaves CSV</button>
+<button class="report-btn" onclick="exportContribution()">Contributions CSV</button>
+<button class="report-btn" onclick="exportFull()">Full Report CSV</button>
+</div></div>
+</section>
+
+<section id="history" class="section"><h2>Collection History</h2><div id="historyList"></div></section>
+</main>
+<nav>
+<button id="nav-home" class="active" onclick="show('home')">⌂<br>Home</button>
+<button id="nav-employees" onclick="show('employees')">♙<br>Employees</button>
+<button id="nav-collection" onclick="show('collection')">▣<br>Collection</button>
+<button id="nav-history" onclick="showHistory()">◷<br>History</button>
+<button id="nav-reports" onclick="show('reports')">⇩<br>Reports</button>
+</nav>
+<script src="data/imported-august-2026.js"></script>
 <script>
-let employees=JSON.parse(localStorage.getItem('mc_employees')||'[]');
+const BASE_MESS=7000, EXCLUDED_RANKS=new Set(["DD","AD","INSP"]);
+const RANK_RATES={DD:[1400,null],AD:[1180,null],INSP:[1400,null],SI:[1560,880],ASI:[1430,800],SGT:[1230,680],Sgt:[1230,680],Cpl:[1140,610]};
+const STATUS_KEY="mc_employees_v5", MONTH_KEY="mc_month_v5";
+let employees=JSON.parse(localStorage.getItem(STATUS_KEY)||"null");
+if(!employees){
+  employees=IMPORTED_EMPLOYEES.map(x=>({id:"imp-"+x[0],forceNo:x[0],rank:x[1],name:x[2],living:x[3]?"IN":"OUT"}));
+  localStorage.setItem(STATUS_KEY,JSON.stringify(employees));
+}
+employees.sort(forceSort);
+let currentMonth=localStorage.getItem(MONTH_KEY)||"2026-08";
 let editId=null;
 
-function save(){localStorage.setItem('mc_employees',JSON.stringify(employees));renderEmployees();updateHome();}
-function show(id){
- document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
- if(id==='home'){document.querySelector('.stats').style.display='grid';document.querySelector('.quick').style.display='block';}
- else{document.querySelector('.stats').style.display='none';document.querySelector('.quick').style.display='none';document.getElementById(id).classList.add('active');}
- document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
- const n=document.getElementById('nav-'+id);if(n)n.classList.add('active');
- if(id==='employees')renderEmployees();
-}
-function toggleForm(){
- editId=null;document.querySelector('#employeeForm h2').textContent='Add Employee';
- document.querySelector('.save').textContent='Save Employee';
- document.getElementById('employeeForm').classList.toggle('show');
-}
-function renderEmployees(){
- const q=(document.getElementById('search')?.value||'').toLowerCase();
- const list=employees.filter(e=>(e.forceNo+' '+e.name).toLowerCase().includes(q));
- document.getElementById('activeCount').textContent=employees.filter(e=>e.active).length+' Active';
- document.getElementById('employeeList').innerHTML=list.length?list.map(e=>`
- <div class="employee">
-  <div><strong>${e.name}</strong><small>${e.rank} • Force No: ${e.forceNo}</small><small>${e.active?'Active':'Inactive'}</small></div>
-  <div style="display:flex;gap:6px;align-items:flex-start">
-   <button onclick="editEmployee('${e.id}')" style="padding:7px 9px;border:1px solid #dfe3ea;border-radius:9px;background:#fff">Edit</button>
-   <button onclick="toggleEmployee('${e.id}')" style="padding:7px 9px;border:1px solid #dfe3ea;border-radius:9px;background:#fff">${e.active?'Deactivate':'Activate'}</button>
-  </div>
- </div>`).join(''):'<div class="card"><div class="month">No employees found.</div></div>';
-}
-function addEmployee(){
- const force=document.getElementById('forceNo').value.trim(),rank=document.getElementById('rank').value,name=document.getElementById('name').value.trim();
- if(!force||!rank||!name){alert('Please fill Force No, Rank and Name.');return;}
- if(employees.some(e=>e.forceNo.toLowerCase()===force.toLowerCase()&&e.id!==editId)){alert('This Force No already exists.');return;}
- if(editId){
-  const e=employees.find(x=>x.id===editId);Object.assign(e,{forceNo,rank,name});
- }else employees.push({id:Date.now().toString(),forceNo,rank,name,active:true});
- save();document.getElementById('employeeForm').classList.remove('show');clearForm();
-}
-function editEmployee(id){
- const e=employees.find(x=>x.id===id);if(!e)return;editId=id;
- document.querySelector('#employeeForm h2').textContent='Edit Employee';document.querySelector('.save').textContent='Update Employee';
- document.getElementById('forceNo').value=e.forceNo;document.getElementById('rank').value=e.rank;document.getElementById('name').value=e.name;
- document.getElementById('employeeForm').classList.add('show');window.scrollTo({top:0,behavior:'smooth'});
-}
-function clearForm(){document.getElementById('forceNo').value='';document.getElementById('rank').value='';document.getElementById('name').value='';editId=null;}
-function toggleEmployee(id){
- const e=employees.find(x=>x.id===id);if(!e)return;
- e.active=!e.active;save();
-}
-function updateHome(){
- const active=employees.filter(e=>e.active).length;
- document.getElementById('totalEmployees').textContent=active;
- document.getElementById('pendingCount').textContent=active;
- document.getElementById('receivedCount').textContent=0;
-}
-document.addEventListener('DOMContentLoaded',()=>{updateHome();});
-</script><script>let currentMonth=localStorage.getItem("mc_current_month")||"2026-09";function collectionKeyFor(m){return "mc_collection_"+m}let collectionKey=collectionKeyFor(currentMonth);let collections=JSON.parse(localStorage.getItem(collectionKey)||"{}");function changeMonth(m){currentMonth=m;localStorage.setItem("mc_current_month",m);collectionKey=collectionKeyFor(m);collections=JSON.parse(localStorage.getItem(collectionKey)||"{}");renderCollection();updateHomeCollection()}
-function recordFor(id){return collections[id]||{contribution:0,leave:0,leaveDays:0,received:0}}
-function renderCollection(){const q=(document.getElementById("collectionSearch")?.value||"").toLowerCase();const active=employees.filter(e=>e.active&&(e.name+" "+e.forceNo).toLowerCase().includes(q));const box=document.getElementById("collectionList");box.innerHTML="";active.forEach(e=>{const r=recordFor(e.id),leaveAmount=(+r.leave||0),mess=Math.max(0,7000-leaveAmount),total=(+r.contribution||0)+mess,rec=+r.received||0,rem=Math.max(0,total-rec),status=rec>=total&&total>0?"Received":rec>0?"Partial":"Pending";const d=document.createElement("div");d.className="card";d.style.marginBottom="10px";d.innerHTML="<div style=\"display:flex;justify-content:space-between\"><div><strong>"+e.name+"</strong><div class=\"month\">"+e.rank+" • "+e.forceNo+"</div></div><span class=\"badge\">"+status+"</span></div><div style=\"display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px;font-size:13px\"><div>Contribution<br><strong>Rs "+(+r.contribution||0).toLocaleString()+"</strong></div><div>Leave<br><strong>"+(+r.leaveDays||0)+" days / Rs "+leaveAmount.toFixed(2)+"</strong></div><div>Mess<br><strong>Rs "+mess.toLocaleString()+"</strong></div><div>Grand Total<br><strong>Rs "+total.toLocaleString()+"</strong></div><div>Remaining<br><strong>Rs "+rem.toLocaleString()+"</strong></div></div>";const b=document.createElement("button");b.textContent="Enter / Update Collection";b.style.cssText="width:100%;margin-top:13px;padding:11px;border:1px solid #dfe3ea;border-radius:10px;background:#fff";b.onclick=()=>editCollection(e.id);d.appendChild(b);box.appendChild(d)})}
-function editCollection(id){const r=recordFor(id);const contribution=prompt("Contribution amount:",r.contribution);if(contribution===null)return;const leaveDays=prompt("Leave days:",r.leaveDays||0);if(leaveDays===null)return;const [yy,mm]=currentMonth.split("-").map(Number);const daysInMonth=new Date(yy,mm,0).getDate();const messAmount=7000;const leaveAmount=(messAmount/daysInMonth)*Math.max(0,+leaveDays||0);const received=prompt("Received money:",r.received);if(received===null)return;collections[id]={contribution:Math.max(0,+contribution||0),leaveDays:Math.max(0,+leaveDays||0),leave:leaveAmount,received:Math.max(0,+received||0)};localStorage.setItem(collectionKey,JSON.stringify(collections));renderCollection();updateHomeCollection()}
-function updateHomeCollection(){let received=0,pending=0;employees.filter(e=>e.active).forEach(e=>{const r=recordFor(e.id),mess=Math.max(0,7000-(+r.leave||0)),total=(+r.contribution||0)+mess,rec=+r.received||0;if(total>0&&rec>=total)received++;else pending++});document.getElementById("receivedCount").textContent=received;document.getElementById("pendingCount").textContent=pending}
-document.getElementById("collectionSearch").addEventListener("input",renderCollection);
-const originalShow=show;show=function(id){originalShow(id);if(id==="collection")renderCollection();updateHomeCollection()};const ms=document.getElementById("monthSelect");if(ms)ms.value=currentMonth;updateHomeCollection();</script><script>
-function calculateLeave(){const mess=Math.max(0,+document.getElementById("calcMess").value||0),days=Math.max(1,+document.getElementById("calcMonthDays").value||30),leave=Math.max(0,+document.getElementById("calcLeaveDays").value||0);const per=mess/days;document.getElementById("calcPerDay").textContent="Rs "+per.toFixed(2);document.getElementById("calcLeaveAmount").textContent="Rs "+(per*leave).toFixed(2)}
-function showLeaveCalculator(){document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));document.getElementById("leaveCalculator").classList.add("active");document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));calculateLeave()}
-</script><script>
-function historyMonths(){const out=[];const now=new Date();for(let i=0;i<12;i++){const d=new Date(now.getFullYear(),now.getMonth()-i,1);out.push(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"));}return out;}
+function forceSort(a,b){const pa=String(a.forceNo).match(/^[A-Za-z-]+/);const pb=String(b.forceNo).match(/^[A-Za-z-]+/);const na=parseInt(String(a.forceNo).match(/\d+/)?.[0]||"0"),nb=parseInt(String(b.forceNo).match(/\d+/)?.[0]||"0");return (pa?.[0]||"").localeCompare(pb?.[0]||"")||na-nb||String(a.forceNo).localeCompare(String(b.forceNo))}
 function monthLabel(m){const [y,mo]=m.split("-").map(Number);return new Date(y,mo-1,1).toLocaleString("en-US",{month:"long",year:"numeric"})}
-function showHistory(){document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));document.getElementById("history").classList.add("active");document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));document.getElementById("nav-history").classList.add("active");renderHistory()}
-function renderHistory(){const box=document.getElementById("historyList");box.innerHTML="";let found=false;historyMonths().forEach(m=>{const data=JSON.parse(localStorage.getItem(collectionKeyFor(m))||"{}");const rows=Object.values(data);if(!rows.length)return;found=true;let received=rows.reduce((s,r)=>s+(+r.received||0),0),total=rows.reduce((s,r)=>s+(+r.contribution||0)+Math.max(0,7000-(+r.leave||0)),0),paid=rows.filter(r=>(+r.received||0)>=((+r.contribution||0)+Math.max(0,7000-(+r.leave||0)))).length;const d=document.createElement("div");d.className="history-row";d.innerHTML="<div><strong>"+monthLabel(m)+"</strong><div class='history-meta'>"+rows.length+" employee records • "+paid+" fully received</div></div><div style='text-align:right'><div class='history-total'>Rs "+received.toLocaleString()+"</div><div class='history-meta'>received</div></div>";d.onclick=()=>{changeMonth(m);show("collection")};box.appendChild(d)});if(!found)box.innerHTML="<div class='card history-empty'>No monthly collection records yet.</div>"}
-</script><script src="data/imported-august-2026.js"></script>
-<script>
-(function importWorkbookData(){
-  if(localStorage.getItem("mc_import_august_2026_v1")) return;
-  const existingByForce=new Set(employees.map(e=>String(e.forceNo).toUpperCase()));
-  const imported=IMPORTED_EMPLOYEES.map(x=>({id:"imp-"+x[0],forceNo:x[0],rank:x[1],name:x[2],active:true}));
-  employees=[...imported.filter(e=>!existingByForce.has(e.forceNo.toUpperCase())),...employees];
-  localStorage.setItem("mc_employees",JSON.stringify(employees));
-  const august={};
-  Object.entries(IMPORTED_AUGUST_2026).forEach(([force,d])=>{
-    const e=employees.find(x=>x.forceNo===force);
-    if(!e) return;
-    const contribution=+d[0]||0, mess=+d[1]||0, received=+d[2]||0;
-    const leave=Math.max(0,7000-mess);
-    august[e.id]={contribution,leaveDays:leave/(7000/30),leave,received};
-  });
-  localStorage.setItem("mc_collection_2026-08",JSON.stringify(august));
-  localStorage.setItem("mc_import_august_2026_v1","1");
-  updateHome();
-  updateHomeCollection();
-})();
-</script><style>
-#outLivingWrap{display:flex;align-items:center;gap:9px;margin-top:12px;font-size:13px;font-weight:650}
-#outLiving{width:18px;height:18px}
-.out-badge{display:inline-block;font-size:11px;font-weight:700;color:#9a6700;background:#fff7cc;border:1px solid #f2d675;border-radius:99px;padding:5px 8px;margin-top:6px}
-.in-badge{display:inline-block;font-size:11px;font-weight:700;color:#16834b;background:#ecfdf3;border:1px solid #b7ebcc;border-radius:99px;padding:5px 8px;margin-top:6px}
-.danger{padding:7px 9px;border:1px solid #f0caca;border-radius:9px;background:#fff5f5;color:#c62828}
-</style>
-<script>
-(function fixMonthlyCollectionV3(){
-  const VERSION="mc_living_logic_v4";
-  const imported=Array.isArray(window.IMPORTED_EMPLOYEES)?window.IMPORTED_EMPLOYEES:[];
-  const old=JSON.parse(localStorage.getItem("mc_employees")||"[]");
-  const importedForces=new Set(imported.map(x=>String(x[0]).toUpperCase()));
-  const importedIds=new Set();
-  const fixed=imported.map(x=>{const id="imp-"+x[0], status=window.LIVING_STATUS?.[x[0]]||"in"; return {id,forceNo:x[0],rank:x[1],name:x[2],outLiving:status==="out",active:true};});
-  const others=old.filter(e=>!importedForces.has(String(e.forceNo||"").toUpperCase()));
-  employees=[...fixed,...others.map(e=>({...e,outLiving:!!e.outLiving,active:true}))];
-  localStorage.setItem("mc_employees",JSON.stringify(employees));
-  const oldAug=JSON.parse(localStorage.getItem("mc_collection_2026-08")||"{}");
-  const corrected={};
-  for(const x of imported){
-    const id="imp-"+x[0], oldR=oldAug[id]||{};
-    const rate=window.RANK_RATES?.[x[1]]||[0,null];
-    const contribution=window.CONTRIBUTIONS?.[x[0]]??0;
-    const messBase=(window.LIVING_STATUS?.[x[0]]==="in")?7000:0;
-    corrected[id]={contribution,leaveDays:x[3]?(+oldR.leaveDays||0):0,leave:x[3]?(+oldR.leave||0):0,received:+oldR.received||0,messBase};
-  }
-  for(const [id,r] of Object.entries(oldAug)) if(!importedIds.has(id)) corrected[id]=r;
-  localStorage.setItem("mc_collection_2026-08",JSON.stringify(corrected));
-  const augustFinal={};
-  for(const x of imported){const status=window.LIVING_STATUS?.[x[0]]; augustFinal["imp-"+x[0]]={contribution:window.CONTRIBUTIONS?.[x[0]]??0,leaveDays:0,leave:0,received:+(oldAug["imp-"+x[0]]?.received||0),messBase:status==="in"?7000:0};}
-  localStorage.setItem("mc_collection_2026-08",JSON.stringify(augustFinal));
-  localStorage.setItem(VERSION,"1");
-})();
-function ensureOutLivingControl(){
-  const form=document.getElementById("employeeForm");
-  if(!form||document.getElementById("outLivingWrap")) return;
-  const saveBtn=form.querySelector(".save");
-  const wrap=document.createElement("label");
-  wrap.id="outLivingWrap";
-  wrap.innerHTML='<input id="outLiving" type="checkbox"> Out Living';
-  saveBtn.before(wrap);
-}
-function livingMessBase(e){return e&&e.outLiving?0:7000}
-function contributionRate(e){
-  const r=window.RANK_RATES?.[e.rank]||[0,null];
-  return e.outLiving&&r[1]!=null?r[1]:r[0];
-}
-function renderEmployees(){
-  ensureOutLivingControl();
-  const q=(document.getElementById("search")?.value||"").toLowerCase();
-  const list=employees.filter(e=>(e.forceNo+" "+e.name).toLowerCase().includes(q));
-  const ac=document.getElementById("activeCount"); if(ac)ac.textContent=employees.length+" Employees";
-  const box=document.getElementById("employeeList");
-  box.innerHTML=list.length?list.map(e=>`
- <div class="employee">
-  <div><strong>${e.name}</strong><small>${e.rank} • Force No: ${e.forceNo}</small><span class="${e.outLiving?"out-badge":"in-badge"}">${e.outLiving?"Out Living":"In Living"}</span></div>
-  <div style="display:flex;gap:6px;align-items:flex-start">
-   <button onclick="editEmployee('${e.id}')" style="padding:7px 9px;border:1px solid #dfe3ea;border-radius:9px;background:#fff">Edit</button>
-   <button onclick="deleteEmployee('${e.id}')" class="danger">Delete</button>
-  </div>
- </div>`).join(""):'<div class="card"><div class="month">No employees found.</div></div>';
-}
-function toggleForm(){
-  ensureOutLivingControl(); editId=null;
-  document.querySelector("#employeeForm h2").textContent="Add Employee";
-  document.querySelector(".save").textContent="Save Employee";
-  document.getElementById("forceNo").value="";
-  document.getElementById("rank").value="";
-  document.getElementById("name").value="";
-  document.getElementById("outLiving").checked=false;
-  document.getElementById("employeeForm").classList.toggle("show");
-}
-function addEmployee(){
-  ensureOutLivingControl();
-  const force=document.getElementById("forceNo").value.trim(),rank=document.getElementById("rank").value,name=document.getElementById("name").value.trim(),outLiving=document.getElementById("outLiving").checked;
-  if(!force||!rank||!name){alert("Please fill Force No, Rank and Name.");return}
-  if(employees.some(e=>e.forceNo.toLowerCase()===force.toLowerCase()&&e.id!==editId)){alert("This Force No already exists.");return}
-  if(editId){const e=employees.find(x=>x.id===editId);Object.assign(e,{forceNo:force,rank,name,outLiving,active:true})}
-  else employees.push({id:Date.now().toString(),forceNo:force,rank,name,outLiving,active:true});
-  localStorage.setItem("mc_employees",JSON.stringify(employees));
-  editId=null;document.getElementById("employeeForm").classList.remove("show");renderEmployees();updateHome();renderCollection();updateHomeCollection();
-}
-function editEmployee(id){
-  ensureOutLivingControl(); const e=employees.find(x=>x.id===id);if(!e)return;
-  editId=id;document.querySelector("#employeeForm h2").textContent="Edit Employee";document.querySelector(".save").textContent="Update Employee";
-  document.getElementById("forceNo").value=e.forceNo;document.getElementById("rank").value=e.rank;document.getElementById("name").value=e.name;document.getElementById("outLiving").checked=!!e.outLiving;
-  document.getElementById("employeeForm").classList.add("show");window.scrollTo({top:0,behavior:"smooth"});
-}
-function deleteEmployee(id){
-  const e=employees.find(x=>x.id===id);if(!e)return;
-  if(!confirm("Delete "+e.name+"?"))return;
-  employees=employees.filter(x=>x.id!==id);
-  localStorage.setItem("mc_employees",JSON.stringify(employees));
-  const data=JSON.parse(localStorage.getItem(collectionKey)||"{}");delete data[id];localStorage.setItem(collectionKey,JSON.stringify(data));
-  renderEmployees();updateHome();renderCollection();updateHomeCollection();
-}
-function updateHome(){
-  const total=employees.length;
-  document.getElementById("totalEmployees").textContent=total;
-  updateHomeCollection();
-}
-function recordFor(id){return collections[id]||{contribution:0,leave:0,leaveDays:0,received:0,messBase:livingMessBase(employees.find(e=>e.id===id))}}
-function renderCollection(){
-  const q=(document.getElementById("collectionSearch")?.value||"").toLowerCase();
-  const active=employees.filter(e=>(e.name+" "+e.forceNo).toLowerCase().includes(q));
-  const box=document.getElementById("collectionList");box.innerHTML="";
-  active.forEach(e=>{
-    const r=recordFor(e.id),base=livingMessBase(e),leave=e.outLiving?0:Math.min(base,+r.leave||0),mess=Math.max(0,base-leave);
-    const contribution=(r.contribution===undefined?contributionRate(e):+r.contribution||0),total=contribution+mess,rec=+r.received||0,rem=Math.max(0,total-rec);
-    const status=rec>=total&&total>0?"Received":rec>0?"Partial":"Pending";
-    const d=document.createElement("div");d.className="card";d.style.marginBottom="10px";
-    d.innerHTML="<div style='display:flex;justify-content:space-between'><div><strong>"+e.name+"</strong><div class='month'>"+e.rank+" • "+e.forceNo+"</div><span class='"+(e.outLiving?"out-badge":"in-badge")+"'>"+(e.outLiving?"Out Living":"In Living")+"</span></div><span class='badge'>"+status+"</span></div><div style='display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px;font-size:13px'><div>Contribution<br><strong>Rs "+contribution.toLocaleString()+"</strong></div><div>Leave<br><strong>"+(+r.leaveDays||0)+" days / Rs "+leave.toFixed(2)+"</strong></div><div>Mess<br><strong>Rs "+mess.toLocaleString()+"</strong></div><div>Grand Total<br><strong>Rs "+total.toLocaleString()+"</strong></div><div>Remaining<br><strong>Rs "+rem.toLocaleString()+"</strong></div></div>";
-    const b=document.createElement("button");b.textContent="Enter / Update Collection";b.style.cssText="width:100%;margin-top:13px;padding:11px;border:1px solid #dfe3ea;border-radius:10px;background:#fff";b.onclick=()=>editCollection(e.id);d.appendChild(b);box.appendChild(d);
-  });
-}
-function editCollection(id){
-  const e=employees.find(x=>x.id===id),r=recordFor(id);if(!e)return;
-  const contribution=prompt("Contribution amount:",r.contribution??contributionRate(e));if(contribution===null)return;
-  const leaveDays=e.outLiving?0:prompt("Leave days:",r.leaveDays||0);if(leaveDays===null)return;
-  const parts=currentMonth.split("-").map(Number);const daysInMonth=new Date(parts[0],parts[1],0).getDate();
-  const leaveAmount=e.outLiving?0:(7000/daysInMonth)*Math.max(0,+leaveDays||0);
-  const received=prompt("Received money:",r.received);if(received===null)return;
-  collections[id]={contribution:Math.max(0,+contribution||0),leaveDays:Math.max(0,+leaveDays||0),leave:leaveAmount,received:Math.max(0,+received||0),messBase:livingMessBase(e)};
-  localStorage.setItem(collectionKey,JSON.stringify(collections));renderCollection();updateHomeCollection();
-}
-function updateHomeCollection(){
-  let received=0,pending=0;
-  employees.forEach(e=>{const r=recordFor(e.id),mess=Math.max(0,livingMessBase(e)-(+r.leave||0)),total=(r.contribution===undefined?contributionRate(e):+r.contribution||0)+mess,rec=+r.received||0;if(total>0&&rec>=total)received++;else pending++});
-  document.getElementById("receivedCount").textContent=received;document.getElementById("pendingCount").textContent=pending;
-}
-document.addEventListener("DOMContentLoaded",()=>{ensureOutLivingControl();renderEmployees();updateHome();if(typeof renderCollection==="function")renderCollection()});
-</script></body>
+function monthDays(m){const [y,mo]=m.split("-").map(Number);return new Date(y,mo,0).getDate()}
+function key(m){return "mc_record_v5_"+m}
+function records(m=currentMonth){return JSON.parse(localStorage.getItem(key(m))||"{}")}
+function saveRecords(r,m=currentMonth){localStorage.setItem(key(m),JSON.stringify(r))}
+function contributionDefault(e){const rate=RANK_RATES[e.rank];if(!rate)return 0;return e.living==="OUT"&&rate[1]!=null?rate[1]:rate[0]}
+function messEligible(e){return e.living==="IN"&&!EXCLUDED_RANKS.has(String(e.rank).toUpperCase())}
+function getRecord(e,m=currentMonth){const r=records(m)[e.id]||{};return {contribution:r.contribution==null?contributionDefault(e):+r.contribution||0,leaveDays:+r.leaveDays||0,leaveAmount:+r.leaveAmount||0,received:+r.received||0}}
+function calc(e,r,m=currentMonth){const leaveDays=messEligible(e)?Math.max(0,r.leaveDays):0;const leaveAmount=messEligible(e)?Math.min(BASE_MESS,(BASE_MESS/monthDays(m))*leaveDays):0;const mess=messEligible(e)?Math.max(0,BASE_MESS-leaveAmount):0;const total=r.contribution+mess;return {leaveDays,leaveAmount,mess,total,received:r.received,pending:Math.max(0,total-r.received),fullyReceived:total>0&&r.received>=total}}
+function persistEmployees(){employees.sort(forceSort);localStorage.setItem(STATUS_KEY,JSON.stringify(employees));updateHome();renderEmployees();renderCollection()}
+function show(id){document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));document.getElementById("nav-"+id)?.classList.add("active");if(id==="employees")renderEmployees();if(id==="collection")renderCollection();if(id==="reports")fillReportMonths();if(id==="history")renderHistory()}
+function fillMonths(){const opts=[];const d=new Date(2026,7,1);for(let i=-2;i<13;i++){const x=new Date(d.getFullYear(),d.getMonth()+i,1),m=x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0");opts.push("<option value='"+m+"'>"+monthLabel(m)+"</option>")}document.getElementById("monthSelect").innerHTML=opts.join("");document.getElementById("monthSelect").value=currentMonth;fillReportMonths()}
+function fillReportMonths(){const el=document.getElementById("reportMonth");if(!el)return;el.innerHTML=document.getElementById("monthSelect").innerHTML;el.value=currentMonth}
+function changeMonth(m){currentMonth=m;localStorage.setItem(MONTH_KEY,m);document.getElementById("monthTitle").textContent=monthLabel(m);document.getElementById("monthSelect").value=m;document.getElementById("reportMonth").value=m;seedAugustIfNeeded();updateHome();renderCollection()}
+function openAdd(){editId=null;document.getElementById("formTitle").textContent="Add Employee";document.querySelector("#employeeForm .save").textContent="Save Employee";document.getElementById("forceNo").value="";document.getElementById("rank").value="";document.getElementById("name").value="";document.getElementById("living").value="IN";document.getElementById("employeeForm").classList.add("show")}
+function saveEmployee(){const force=document.getElementById("forceNo").value.trim(),rank=document.getElementById("rank").value,name=document.getElementById("name").value.trim(),living=document.getElementById("living").value;if(!force||!rank||!name)return alert("Force No, Rank and Name are required.");if(employees.some(e=>e.forceNo.toLowerCase()===force.toLowerCase()&&e.id!==editId))return alert("Force No already exists.");if(editId){const e=employees.find(x=>x.id===editId);Object.assign(e,{forceNo,rank,name,living})}else employees.push({id:"emp-"+Date.now(),forceNo,rank,name,living});document.getElementById("employeeForm").classList.remove("show");persistEmployees()}
+function editEmployee(id){const e=employees.find(x=>x.id===id);if(!e)return;editId=id;document.getElementById("formTitle").textContent="Edit Employee";document.querySelector("#employeeForm .save").textContent="Update Employee";document.getElementById("forceNo").value=e.forceNo;document.getElementById("rank").value=e.rank;document.getElementById("name").value=e.name;document.getElementById("living").value=e.living;document.getElementById("employeeForm").classList.add("show");scrollTo({top:0,behavior:"smooth"})}
+function deleteEmployee(id){const e=employees.find(x=>x.id===id);if(!e||!confirm("Delete "+e.name+"?"))return;employees=employees.filter(x=>x.id!==id);Object.keys(localStorage).filter(k=>k.startsWith("mc_record_v5_")).forEach(k=>{const r=JSON.parse(localStorage.getItem(k)||"{}");delete r[id];localStorage.setItem(k,JSON.stringify(r))});persistEmployees()}
+function renderEmployees(){const q=(document.getElementById("employeeSearch").value||"").toLowerCase();const list=employees.filter(e=>(e.forceNo+" "+e.rank+" "+e.name).toLowerCase().includes(q));document.getElementById("employeeMeta").textContent=employees.length+" employees • sorted by Force No";document.getElementById("employeeList").innerHTML=list.map((e,i)=>"<div class='employee'><div><strong>"+(employees.indexOf(e)+1)+". "+e.name+"</strong><small>"+e.rank+" • "+e.forceNo+"</small><span class='badge "+(e.living==="IN"?"in":"out")+"'>"+(e.living==="IN"?"IN Living":"Out Living")+"</span></div><div style='display:flex;gap:6px'><button class='btn' onclick='editEmployee(""+e.id+"")'>Edit</button><button class='btn danger' onclick='deleteEmployee(""+e.id+"")'>Delete</button></div></div>").join("")||"<div class='card empty'>No employees found.</div>"}
+function renderCollection(){const q=(document.getElementById("collectionSearch").value||"").toLowerCase(),r=records();const list=employees.filter(e=>(e.forceNo+" "+e.name).toLowerCase().includes(q));document.getElementById("collectionList").innerHTML=list.map(e=>{const x=calc(e,getRecord(e));return "<div class='card collection-card'><div style='display:flex;justify-content:space-between;gap:8px'><div><strong>"+e.name+"</strong><div class='muted'>"+e.rank+" • "+e.forceNo+"</div><span class='badge "+(e.living==="IN"?"in":"out")+"'>"+(e.living==="IN"?"IN Living":"Out Living")+"</span></div><span class='badge "+(x.fullyReceived?"received":"pending")+"'>"+(x.fullyReceived?"Received":"Pending")+"</span></div><div class='grid2'><div>Contribution<br><strong>Rs "+x.totalContribution.toLocaleString()+"</strong></div><div>Leave<br><strong>"+x.leaveDays+" days / Rs "+x.leaveAmount.toFixed(2)+"</strong></div><div>Mess<br><strong>Rs "+x.mess.toLocaleString(undefined,{maximumFractionDigits:2})+"</strong></div><div>Total<br><strong>Rs "+x.total.toLocaleString(undefined,{maximumFractionDigits:2})+"</strong></div><div>Received<br><strong>Rs "+x.received.toLocaleString()+"</strong></div></div><button class='btn' style='width:100%;margin-top:12px' onclick='editCollection(""+e.id+"")'>Enter / Update</button></div>"}).join("")||"<div class='card empty'>No employees found.</div>"}
+function editCollection(id){const e=employees.find(x=>x.id===id),r=getRecord(e),d=calc(e,r);const contribution=prompt("Contribution amount:",r.contribution);if(contribution===null)return;let leaveDays=0;if(messEligible(e)){leaveDays=prompt("Leave days:",r.leaveDays);if(leaveDays===null)return}const received=prompt("Received amount:",r.received);if(received===null)return;const all=records();all[id]={contribution:Math.max(0,+contribution||0),leaveDays:Math.max(0,+leaveDays||0),leaveAmount:0,received:Math.max(0,+received||0)};saveRecords(all);renderCollection();updateHome()}
+function updateHome(){let total=0,receivedAmount=0,received=0,pending=0;employees.forEach(e=>{const x=calc(e,getRecord(e));total+=x.total;receivedAmount+=x.received;if(x.fullyReceived)received++;else pending++});document.getElementById("totalEmployees").textContent=employees.length;document.getElementById("receivedCount").textContent=received;document.getElementById("pendingCount").textContent=pending;document.getElementById("totalAmount").textContent="Rs "+Math.round(total).toLocaleString();document.getElementById("receivedAmount").textContent="Rs "+Math.round(receivedAmount).toLocaleString()}
+function seedAugustIfNeeded(){if(localStorage.getItem("mc_seed_august_v5"))return;const r={};employees.forEach(e=>{r[e.id]={contribution:contributionDefault(e),leaveDays:0,leaveAmount:0,received:0}});saveRecords(r,"2026-08");localStorage.setItem("mc_seed_august_v5","1")}
+function renderHistory(){const months=[];for(let i=0;i<12;i++){const d=new Date(2026,8-i,1),m=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"),r=records(m);if(!Object.keys(r).length)continue;let t=0,rec=0;employees.forEach(e=>{const x=calc(e,getRecord(e,m),m);t+=x.total;rec+=x.received});months.push("<div class='card' style='margin-bottom:10px' onclick='changeMonth(""+m+"");show("collection")'><strong>"+monthLabel(m)+"</strong><div class='muted'>Total Rs "+Math.round(t).toLocaleString()+" • Received Rs "+Math.round(rec).toLocaleString()+"</div></div>")}document.getElementById("historyList").innerHTML=months.join("")||"<div class='card empty'>No monthly records yet.</div>"}
+function csvEscape(v){return '"'+String(v??"").replace(/"/g,'""')+'"'}
+function exportCSV(rows,name){const csv=rows.map(r=>r.map(csvEscape).join(",")).join("\n"),blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function exportMonth(){return document.getElementById("reportMonth").value||currentMonth}
+function exportMess(){const m=exportMonth(),rows=[["Sr","Force No","Rank","Name","Living Status","Leave Days","Leave Amount","Base Mess","Final Mess"]];employees.forEach((e,i)=>{const x=calc(e,getRecord(e,m),m);rows.push([i+1,e.forceNo,e.rank,e.name,e.living==="IN"?"IN Living":"Out Living",x.leaveDays,x.leaveAmount.toFixed(2),messEligible(e)?BASE_MESS:0,x.mess.toFixed(2)])});exportCSV(rows,"Mess-Leaves-"+m+".csv")}
+function exportContribution(){const m=exportMonth(),rows=[["Sr","Force No","Rank","Name","Living Status","Contribution Total"]];employees.forEach((e,i)=>{const x=calc(e,getRecord(e,m),m);rows.push([i+1,e.forceNo,e.rank,e.name,e.living==="IN"?"IN Living":"Out Living",x.totalContribution])});exportCSV(rows,"Contributions-"+m+".csv")}
+function exportFull(){const m=exportMonth(),rows=[["Sr","Force No","Rank","Name","Living Status","Contribution","Leave Days","Leave Amount","Mess","Total","Received"]];employees.forEach((e,i)=>{const x=calc(e,getRecord(e,m),m);rows.push([i+1,e.forceNo,e.rank,e.name,e.living==="IN"?"IN Living":"Out Living",x.totalContribution,x.leaveDays,x.leaveAmount.toFixed(2),x.mess.toFixed(2),x.total.toFixed(2),x.received])});exportCSV(rows,"Full-Report-"+m+".csv")}
+const _calc=calc;calc=function(e,r,m){const base=_calc(e,r,m);return {...base,totalContribution:r.contribution,total:base.total,leaveAmount:base.leaveAmount}}
+document.getElementById("monthTitle").textContent=monthLabel(currentMonth);
+fillMonths();seedAugustIfNeeded();updateHome();renderEmployees();renderCollection();
+</script>
+</body>
 </html>
