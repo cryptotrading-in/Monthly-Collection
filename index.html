@@ -79,6 +79,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid 
 const BASE_MESS=7000, EXCLUDED_RANKS=new Set(["DD","AD","INSP"]);
 const RANK_RATES={DD:[1400,null],AD:[1180,null],INSP:[1400,null],SI:[1560,880],ASI:[1430,800],SGT:[1230,680],Sgt:[1230,680],Cpl:[1140,610]};
 const STATUS_KEY="mc_employees_v5", MONTH_KEY="mc_month_v5";
+const CLOUD_PREFIX="mc_cloud_";
 let employees=JSON.parse(localStorage.getItem(STATUS_KEY)||"null");
 if(!employees){
   employees=IMPORTED_EMPLOYEES.map(x=>({id:"imp-"+x[0],forceNo:x[0],rank:x[1],name:x[2],living:x[3]?"IN":"OUT"}));
