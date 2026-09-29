@@ -87,7 +87,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid 
 <script src="data/imported-august-2026.js"></script>
 <script>
 const RANKS=["DD","AD","INSP","SI","ASI","SGT","Cpl"], CONTRIBUTION_TYPES=["Welfare","MOD","MED","Barber","Waiter","W.Man"];
-const DEFAULT_SETTINGS={messAmount:7000,excludedRanks:["DD","AD","INSP"],rates:{DD:[1400,null],AD:[1180,null],INSP:[1400,null],SI:[1560,880],ASI:[1430,800],SGT:[1230,680],Cpl:[1140,610]},workerRates:{MED:0,MOD:0,Barber:0,Waiter:0,Welfare:0,"W.Man":0}};
+const DEFAULT_SETTINGS={messAmount:7000,excludedRanks:["DD","AD","INSP"],rates:{DD:[1400,null],AD:[1180,null],INSP:[1400,null],SI:[1560,880],ASI:[1430,800],SGT:[1230,680],Cpl:[1140,610]}};
 function ensureRankContributions(){
   if(!appSettings.rankContributions)appSettings.rankContributions={};
   RANKS.forEach(rank=>{
@@ -182,7 +182,7 @@ function openChargeEditor(type){
     title.textContent="Rank Contributions";
     html=RANKS.map(rank=>{
       const cfg=appSettings.rankContributions[rank], total=cfg.configured?CONTRIBUTION_TYPES.reduce((s,t)=>s+(+cfg.values?.[t]||0),0):((cfg.legacyTotal||[0,0])[0]||0);
-      return '<div class="rank-card"><div><h4>'+rank+'</h4><div class="rank-total">Current total: Rs '+total.toLocaleString()+'</div></div><button class="rank-open" onclick="openRankContribution(\''+rank+'\\')">Edit</button></div>';
+      return '<div class="rank-card"><div><h4>'+rank+'</h4><div class="rank-total">Current total: Rs '+total.toLocaleString()+'</div></div><button class="rank-open" onclick="openRankContribution(\''+rank+'\')">Edit</button></div>';
     }).join("");
   }
   if(type==="exclusions"){
