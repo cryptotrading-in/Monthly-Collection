@@ -185,15 +185,15 @@ function syncStatusDependentRecords(previousEmployees){
 function reconcileLivingRecordsOnce(){
   const marker="mc_migration_living_records_v3";
   if(localStorage.getItem(marker))return;
-  const defaults=new Set();
-  RANKS.forEach(rank=>{const rates=appSettings.rates?.[rank]||DEFAULT_SETTINGS.rates[rank]||[0,0];defaults.add(+rates[0]||0);if(rates[1]!=null)defaults.add(+rates[1]||0)});
   for(const k of Object.keys(localStorage)){
     if(!k.startsWith("mc_record_v5_"))continue;
     const m=k.slice("mc_record_v5_".length),r=records(m);let changed=false;
     for(const e of employees){
       const rec=r[e.id];if(!rec)continue;
-      const currentDefault=contributionDefault(e);
-      if(defaults.has(+rec.contribution||0)&&(+rec.contribution||0)!==currentDefault){rec.contribution=currentDefault;changed=true}
+      const rank=RANKS.find(x=>x.toUpperCase()===String(e.rank).toUpperCase())||e.rank;
+      const rates=appSettings.rates?.[rank]||DEFAULT_SETTINGS.rates[rank]||[0,0];
+      const currentDefault=contributionDefault(e), oppositeDefault=e.living==="IN"?(rates[1]!=null?+rates[1]:null):+rates[0];
+      if(oppositeDefault!=null&&+rec.contribution===oppositeDefault&&oppositeDefault!==currentDefault){rec.contribution=currentDefault;changed=true}
       if(e.living==="OUT"&&(rec.leaveDays||rec.leaveAmount)){rec.leaveDays=0;rec.leaveAmount=0;changed=true}
     }
     if(changed){localStorage.setItem(k,JSON.stringify(r));cloudPut("records:"+m,r).catch(()=>{})}
