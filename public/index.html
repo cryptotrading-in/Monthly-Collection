@@ -145,7 +145,7 @@ for(const k of Object.keys(localStorage)){
     if(!state["records:"+m])await cloudPut("records:"+m,JSON.parse(localStorage.getItem(k)));
   }
 }
-await enforceLivingCalculationInvariants();
+reconcileLivingRecordsOnce();
 setCloudStatus();
 updateHome();renderEmployees();renderCollection();renderHistory();renderSettings();setCloudStatus();}catch(e){cloudOnline=false;console.error(e);setCloudStatus();}}
 function setCloudStatus(){const el=document.getElementById("monthTitle");if(el)el.title=cloudOnline?"Cloud database connected":"Cloud database unavailable — local backup active";}
@@ -163,8 +163,7 @@ function contributionDefault(e){
   const rate=appSettings.rates?.[rank]||DEFAULT_SETTINGS.rates[rank]||[0,0];
   return e.living==="OUT"&&rate[1]!=null?rate[1]:rate[0];
 }
-function livingState(e){const v=String(e?.living??"").trim().toUpperCase().replace(/[_-]+/g," ");if(v==="OUT"||v==="OUT LIVING"||v==="OUT-LIVING")return "OUT";return "IN"}
-function messEligible(e){return livingState(e)==="IN"&&!excludedRanks().has(String(e.rank).toUpperCase())}
+function messEligible(e){return e.living==="IN"&&!excludedRanks().has(String(e.rank).toUpperCase())}
 function getRecord(e,m=currentMonth){const r=records(m)[e.id]||{};return {contribution:(r.contribution==null||+r.contribution===0)?contributionDefault(e):(+r.contribution||0),leaveDays:+r.leaveDays||0,leaveAmount:+r.leaveAmount||0,received:+r.received||0}}
 function calc(e,r,m=currentMonth){const eligible=messEligible(e);const leaveDays=eligible?Math.max(0,r.leaveDays):0;const leaveAmount=eligible?Math.min(messAmount(),(messAmount()/monthDays(m))*leaveDays):0;const mess=eligible?Math.max(0,messAmount()-leaveAmount):0;const total=r.contribution+mess;return {leaveDays,leaveAmount,mess,total,received:r.received,pending:Math.max(0,total-r.received),fullyReceived:total>0&&r.received>=total}}
 function syncStatusDependentRecords(previousEmployees){
@@ -183,8 +182,9 @@ function syncStatusDependentRecords(previousEmployees){
     if(changed){localStorage.setItem(k,JSON.stringify(r));cloudPut("records:"+m,r).catch(()=>{})}
   }
 }
-async function enforceLivingCalculationInvariants(){
-  const pending=[];
+function reconcileLivingRecordsOnce(){
+  const marker="mc_migration_living_records_v3";
+  if(localStorage.getItem(marker))return;
   for(const k of Object.keys(localStorage)){
     if(!k.startsWith("mc_record_v5_"))continue;
     const m=k.slice("mc_record_v5_".length),r=records(m);let changed=false;
@@ -196,9 +196,9 @@ async function enforceLivingCalculationInvariants(){
       if(oppositeDefault!=null&&+rec.contribution===oppositeDefault&&oppositeDefault!==currentDefault){rec.contribution=currentDefault;changed=true}
       if(e.living==="OUT"&&(rec.leaveDays||rec.leaveAmount)){rec.leaveDays=0;rec.leaveAmount=0;changed=true}
     }
-    if(changed){localStorage.setItem(k,JSON.stringify(r));pending.push(cloudPut("records:"+m,r))}
+    if(changed){localStorage.setItem(k,JSON.stringify(r));cloudPut("records:"+m,r).catch(()=>{})}
   }
-  await Promise.allSettled(pending);
+  localStorage.setItem(marker,"1");
 }
 async function persistEmployees(){employees=employees.map(normalizeEmployee).filter(e=>e&&e.forceNo);employees.sort(forceSort);try{await cloudPut("employees",employees);localStorage.setItem(STATUS_KEY,JSON.stringify(employees))}catch(e){alert("Cloud database save failed. Employee changes were not saved.");return}updateHome();renderEmployees();renderCollection()}
 function showHistory(){show("history")}
@@ -254,7 +254,7 @@ function fillMonths(){const opts=[];const d=new Date(2026,7,1);for(let i=-2;i<13
 function fillReportMonths(){const el=document.getElementById("reportMonth");if(!el)return;el.innerHTML=document.getElementById("monthSelect").innerHTML;el.value=currentMonth}
 function changeMonth(m){currentMonth=m;localStorage.setItem(MONTH_KEY,m);document.getElementById("monthTitle").textContent=monthLabel(m);document.getElementById("monthSelect").value=m;document.getElementById("reportMonth").value=m;updateHome();renderCollection();renderHistory()}
 function openAdd(){editId=null;document.getElementById("formTitle").textContent="Add Employee";document.querySelector("#employeeForm .save").textContent="Save Employee";document.getElementById("forceNo").value="";document.getElementById("rank").value="";document.getElementById("name").value="";document.getElementById("living").value="IN";document.getElementById("employeeForm").classList.add("show")}
-function normalizeEmployee(e){if(!e||typeof e!=="object")return null;let f=e.forceNo;if(f&&typeof f==="object")f=f.value??f.forceNo??f.text??"";return {...e,forceNo:String(f??""),rank:String(e.rank??""),name:String(e.name??""),living:livingState(e)}};employees=(Array.isArray(employees)?employees:[]).map(normalizeEmployee).filter(Boolean);async function saveEmployee(){const force=String(document.getElementById("forceNo").value||"").trim(),rank=document.getElementById("rank").value,name=document.getElementById("name").value.trim(),living=document.getElementById("living").value;if(!force||!rank||!name)return alert("Force No, Rank and Name are required.");if(employees.some(e=>e.forceNo.toLowerCase()===force.toLowerCase()&&e.id!==editId))return alert("Force No already exists.");const before=employees.map(e=>({...e}));if(editId){const e=employees.find(x=>x.id===editId);Object.assign(e,{forceNo,rank,name,living})}else employees.push({id:"emp-"+Date.now(),forceNo,rank,name,living});document.getElementById("employeeForm").classList.remove("show");await persistEmployees();syncStatusDependentRecords(before);updateHome();renderCollection()}
+function normalizeEmployee(e){if(!e||typeof e!=="object")return null;let f=e.forceNo;if(f&&typeof f==="object")f=f.value??f.forceNo??f.text??"";return {...e,forceNo:String(f??""),rank:String(e.rank??""),name:String(e.name??""),living:String(e.living??"IN").toUpperCase()==="OUT"?"OUT":"IN"}};employees=(Array.isArray(employees)?employees:[]).map(normalizeEmployee).filter(Boolean);async function saveEmployee(){const force=String(document.getElementById("forceNo").value||"").trim(),rank=document.getElementById("rank").value,name=document.getElementById("name").value.trim(),living=document.getElementById("living").value;if(!force||!rank||!name)return alert("Force No, Rank and Name are required.");if(employees.some(e=>e.forceNo.toLowerCase()===force.toLowerCase()&&e.id!==editId))return alert("Force No already exists.");const before=employees.map(e=>({...e}));if(editId){const e=employees.find(x=>x.id===editId);Object.assign(e,{forceNo,rank,name,living})}else employees.push({id:"emp-"+Date.now(),forceNo,rank,name,living});document.getElementById("employeeForm").classList.remove("show");await persistEmployees();syncStatusDependentRecords(before);updateHome();renderCollection()}
 function editEmployee(id){const e=employees.find(x=>x.id===id);if(!e)return;editId=id;document.getElementById("formTitle").textContent="Edit Employee";document.querySelector("#employeeForm .save").textContent="Update Employee";document.getElementById("forceNo").value=e.forceNo;document.getElementById("rank").value=e.rank;document.getElementById("name").value=e.name;document.getElementById("living").value=e.living;document.getElementById("employeeForm").classList.add("show");scrollTo({top:0,behavior:"smooth"})}
 async function deleteEmployee(id){const e=employees.find(x=>x.id===id);if(!e||!confirm("Delete "+e.name+"?"))return;employees=employees.filter(x=>x.id!==id);const months=Object.keys(localStorage).filter(k=>k.startsWith("mc_record_v5_"));for(const k of months){const r=JSON.parse(localStorage.getItem(k)||"{}");delete r[id];localStorage.setItem(k,JSON.stringify(r));try{await cloudPut("records:"+k.slice("mc_record_v5_".length),r)}catch(err){alert("Cloud database save failed. Employee deletion was not confirmed online.");return}}await persistEmployees()}
 function renderEmployees(){const q=(document.getElementById("employeeSearch").value||"").toLowerCase();const list=employees.filter(e=>(e.forceNo+" "+e.rank+" "+e.name).toLowerCase().includes(q));document.getElementById("employeeMeta").textContent=employees.length+" employees • sorted by Force No";document.getElementById("employeeList").innerHTML=list.map((e,i)=>"<div class='employee'><div><strong>"+(employees.indexOf(e)+1)+". "+e.name+"</strong><small>"+e.rank+" • "+e.forceNo+"</small><span class='badge "+(e.living==="IN"?"in":"out")+"'>"+(e.living==="IN"?"IN Living":"Out Living")+"</span></div><div style='display:flex;gap:6px'><button class='btn' onclick='editEmployee(\""+e.id+"\")'>Edit</button><button class='btn danger' onclick='deleteEmployee(\""+e.id+"\")'>Delete</button></div></div>").join("")||"<div class='card empty'>No employees found.</div>"}
