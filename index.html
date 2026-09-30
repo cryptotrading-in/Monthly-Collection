@@ -131,7 +131,7 @@ async function cloudPut(keyName,value){
 }
 async function initCloud(){try{const res=await fetch("/api/state",{cache:"no-store"});if(!res.ok)throw new Error("D1 API unavailable");const data=await res.json();if(!data.ok)throw new Error(data.error||"D1 API unavailable");cloudOnline=true;const state=data.state||{};
 if(state.settings){appSettings=state.settings;localStorage.setItem("mc_settings_v1",JSON.stringify(appSettings));}else{await cloudPut("settings",appSettings);}
-if(Array.isArray(state.employees)&&state.employees.length){employees=state.employees.map(normalizeEmployee).filter(e=>e&&e.forceNo);employees.sort(forceSort);localStorage.setItem(STATUS_KEY,JSON.stringify(employees));}else{await cloudPut("employees",employees);}
+if(Array.isArray(state.employees)&&state.employees.length){employees=state.employees.map(normalizeEmployee).filter(e=>e&&e.forceNo);employees.sort(forceSort);localStorage.setItem(STATUS_KEY,JSON.stringify(employees));}else{await cloudPut("employees",employees);}\nif(!state["migration:ad-abid-v1"]){const abid={id:"imp-SF-AD-Abid-Ali",forceNo:"SF-",rank:"AD",name:"Abid Ali",living:"OUT"};if(!employees.some(e=>String(e.name).trim().toLowerCase()==="abid ali"&&String(e.rank).toUpperCase()==="AD")){employees.push(abid);employees.sort(forceSort);await cloudPut("employees",employees);localStorage.setItem(STATUS_KEY,JSON.stringify(employees));}await cloudPut("migration:ad-abid-v1",true);}
 for(const k of Object.keys(state)){if(k.startsWith("records:"))localStorage.setItem(key(k.slice(8)),JSON.stringify(state[k]));}
 if(!state["records:2026-08"]){
   const localAugust=JSON.parse(localStorage.getItem(key("2026-08"))||"null");
