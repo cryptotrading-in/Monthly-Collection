@@ -132,7 +132,7 @@ async function cloudPut(keyName,value){
 async function initCloud(){try{const res=await fetch("/api/state",{cache:"no-store"});if(!res.ok)throw new Error("D1 API unavailable");const data=await res.json();if(!data.ok)throw new Error(data.error||"D1 API unavailable");cloudOnline=true;const state=data.state||{};
 if(state.settings){appSettings=state.settings;localStorage.setItem("mc_settings_v1",JSON.stringify(appSettings));}else{await cloudPut("settings",appSettings);}
 if(Array.isArray(state.employees)&&state.employees.length){employees=state.employees.map(normalizeEmployee).filter(e=>e&&e.forceNo);employees.sort(forceSort);localStorage.setItem(STATUS_KEY,JSON.stringify(employees));}else{await cloudPut("employees",employees);}
-if(!state["migration:employees-reconcile-v2"]){const removeNames=new Set(["aslam masih","hikmat ullah"]);employees=employees.filter(e=>!removeNames.has(String(e.name).trim().toLowerCase()));const abid={id:"imp-SF-AD-Abid-Ali",forceNo:"SF-",rank:"AD",name:"Abid Ali",living:"OUT"};if(!employees.some(e=>String(e.name).trim().toLowerCase()==="abid ali"&&String(e.rank).toUpperCase()==="AD"))employees.push(abid);employees.sort(forceSort);await cloudPut("employees",employees);localStorage.setItem(STATUS_KEY,JSON.stringify(employees));await cloudPut("migration:employees-reconcile-v2",true);}else{employees=employees.map(normalizeEmployee).filter(e=>e&&e.forceNo);employees.sort(forceSort);localStorage.setItem(STATUS_KEY,JSON.stringify(employees));}
+employees=employees.map(normalizeEmployee).filter(e=>e&&e.forceNo);employees.sort(forceSort);localStorage.setItem(STATUS_KEY,JSON.stringify(employees));
 for(const k of Object.keys(state)){if(k.startsWith("records:"))localStorage.setItem(key(k.slice(8)),JSON.stringify(state[k]));}
 if(!state["records:2026-08"]){
   const localAugust=JSON.parse(localStorage.getItem(key("2026-08"))||"null");
@@ -164,7 +164,7 @@ function contributionDefault(e){
   return e.living==="OUT"&&rate[1]!=null?rate[1]:rate[0];
 }
 function messEligible(e){return e.living==="IN"&&!excludedRanks().has(String(e.rank).toUpperCase())}
-function getRecord(e,m=currentMonth){const r=records(m)[e.id]||{};return {contribution:(r.contribution==null||+r.contribution===0)?contributionDefault(e):(+r.contribution||0),leaveDays:+r.leaveDays||0,leaveAmount:+r.leaveAmount||0,received:+r.received||0}}
+function getRecord(e,m=currentMonth){const r=records(m)[e.id]||{};return {contribution:contributionDefault(e),leaveDays:+r.leaveDays||0,leaveAmount:0,received:+r.received||0}}
 function calc(e,r,m=currentMonth){const eligible=messEligible(e);const leaveDays=eligible?Math.max(0,r.leaveDays):0;const leaveAmount=eligible?Math.min(messAmount(),(messAmount()/monthDays(m))*leaveDays):0;const mess=eligible?Math.max(0,messAmount()-leaveAmount):0;const total=r.contribution+mess;return {leaveDays,leaveAmount,mess,total,received:r.received,pending:Math.max(0,total-r.received),fullyReceived:total>0&&r.received>=total}}
 function syncStatusDependentRecords(previousEmployees){
   const oldById=Object.fromEntries((previousEmployees||[]).map(e=>[e.id,e]));
