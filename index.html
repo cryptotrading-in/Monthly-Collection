@@ -157,12 +157,12 @@ async function saveRecords(r,m=currentMonth){
 function contributionDefault(e){
   const rank=RANKS.find(r=>r.toUpperCase()===String(e.rank).toUpperCase())||e.rank;
   const cfg=appSettings.rankContributions?.[rank];
-  if(cfg?.configured){return CONTRIBUTION_TYPES.reduce((sum,t)=>sum+Math.max(0,+cfg.values?.[t]||0),0);}
+  if(cfg?.configured){const total=CONTRIBUTION_TYPES.reduce((sum,t)=>sum+Math.max(0,+cfg.values?.[t]||0),0);if(total>0)return total;}
   const rate=appSettings.rates?.[rank]||DEFAULT_SETTINGS.rates[rank]||[0,0];
   return e.living==="OUT"&&rate[1]!=null?rate[1]:rate[0];
 }
 function messEligible(e){return e.living==="IN"&&!excludedRanks().has(String(e.rank).toUpperCase())}
-function getRecord(e,m=currentMonth){const r=records(m)[e.id]||{};return {contribution:r.contribution==null?contributionDefault(e):+r.contribution||0,leaveDays:+r.leaveDays||0,leaveAmount:+r.leaveAmount||0,received:+r.received||0}}
+function getRecord(e,m=currentMonth){const r=records(m)[e.id]||{};return {contribution:(r.contribution==null||+r.contribution===0)?contributionDefault(e):(+r.contribution||0),leaveDays:+r.leaveDays||0,leaveAmount:+r.leaveAmount||0,received:+r.received||0}}
 function calc(e,r,m=currentMonth){const leaveDays=messEligible(e)?Math.max(0,r.leaveDays):0;const leaveAmount=messEligible(e)?Math.min(messAmount(),(messAmount()/monthDays(m))*leaveDays):0;const mess=messEligible(e)?Math.max(0,messAmount()-leaveAmount):0;const total=r.contribution+mess;return {leaveDays,leaveAmount,mess,total,received:r.received,pending:Math.max(0,total-r.received),fullyReceived:total>0&&r.received>=total}}
 async function persistEmployees(){employees=employees.map(normalizeEmployee).filter(e=>e&&e.forceNo);employees.sort(forceSort);try{await cloudPut("employees",employees);localStorage.setItem(STATUS_KEY,JSON.stringify(employees))}catch(e){alert("Cloud database save failed. Employee changes were not saved.");return}updateHome();renderEmployees();renderCollection()}
 function showHistory(){show("history")}
@@ -206,7 +206,7 @@ async function saveChargeEditor(){
   if(t&&t.startsWith("rank:")){
     const rank=t.slice(5),cfg=appSettings.rankContributions[rank];
     CONTRIBUTION_TYPES.forEach(type=>{cfg.values[type]=Math.max(0,+document.getElementById("rc-"+type.replace(/[^a-z0-9]/gi,"")).value||0)});
-    cfg.configured=true;
+    cfg.configured=CONTRIBUTION_TYPES.some(type=>(+cfg.values?.[type]||0)>0);
   }
   if(t==="ranks")return;
   delete appSettings.workerRates;
